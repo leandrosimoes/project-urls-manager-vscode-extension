@@ -1,0 +1,10 @@
+{
+    "ignore": [
+        "node_modules",
+        "android",
+        "ios"
+    ],
+    "extensions": [
+        ".js", ".jsx", ".ts", ".tsx", ".html"
+    ]
+}

@@ -1,0 +1,11 @@
+{
+    "ignore": [
+        "node_modules"
+    ],
+    "extensions": [
+        ".js", ".jsx", ".ts", ".tsx"
+    ],
+    "autoSync": {
+        "inverval": 1
+    }
+}
