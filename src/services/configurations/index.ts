@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
-import { resolve } from 'path';
+import { join } from 'path';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 
 import { CONFIGURATIONS_FILE_NAME } from '../../constants';
 import { logger } from '../logger';
+import { getContext } from '../context';
 
 interface IAutoSync {
     interval: number
@@ -17,9 +18,14 @@ interface IConfigurations {
 
 const createConfigurationBaseFile = async () => {
     try {
-        const configurationsPath = `${vscode.workspace.rootPath}\\${CONFIGURATIONS_FILE_NAME}`;
+        const context = getContext();
 
-        const baseConfigurationFilePath = resolve(__dirname, "..", "..", "assets", "pam.config-base.json");
+        if (!context) {
+            return;
+        }
+
+        const configurationsPath = `${vscode.workspace.rootPath}\\${CONFIGURATIONS_FILE_NAME}`;
+        const baseConfigurationFilePath = join(context.extensionPath, 'src', 'assets', 'pam.config.json');
 
         if (!existsSync(baseConfigurationFilePath)) {
             return;

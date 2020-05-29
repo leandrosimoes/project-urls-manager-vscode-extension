@@ -1,15 +1,18 @@
 import * as vscode from 'vscode';
 import { readdirSync, readFileSync, statSync } from 'fs';
+import { extname, join } from 'path';
+import { URL, IURL } from '../../models/url';
 
 import { asyncForEach } from '../../utils';
 import { logger } from '../logger';
 import { getConfigurations } from '../configurations';
+import { getContext } from '../context';
 
-const _URLS = new Set<string>();
+let _URLS: IURL[] = [];
 let autoSyncInterval: NodeJS.Timeout;
 
 function cleanURL(url: string) {
-    return url.replace(/[\'\"\(\)\`\´,\\\{\}\<\>\|\^]/g, '');
+    return url.replace(/[\'\"\(\)\`\´,\\\{\}\<\>\|\^]/g, '').trim();
 }
 
 async function updateProjectUrls(rootPath = vscode.workspace.rootPath) {
@@ -20,10 +23,18 @@ async function updateProjectUrls(rootPath = vscode.workspace.rootPath) {
     const configurations = await getConfigurations();
     const ignore = configurations?.ignore || [];
     const extensions = configurations?.extensions || [];
+    const context = getContext();
+
+    if (!context) {
+        return;
+    }
+
+    const assetsPath = join(context.extensionPath, 'src', 'assets');
+    const fallbackFaviconPath = vscode.Uri.file(join(assetsPath, 'fallback-favicon.png'));
 
     const files = readdirSync(rootPath);
 	await asyncForEach(files, async (file: string) => {
-		const filePath = `${rootPath}\\${file}`;
+        const filePath = `${rootPath}\\${file}`;
         const stat = statSync(filePath);
 
 		if (stat.isDirectory()) {
@@ -36,8 +47,6 @@ async function updateProjectUrls(rootPath = vscode.workspace.rootPath) {
 			return;
         }
         
-        const splitedFileName = file.split('.');
-        const fileExtension = splitedFileName && splitedFileName.length > 0 ? `.${splitedFileName.reverse()[0]}` : '';
 
         if (file === 'pam.config.json') {
             return;
@@ -48,6 +57,7 @@ async function updateProjectUrls(rootPath = vscode.workspace.rootPath) {
             return;
         }
 
+        const fileExtension = extname(file);
         if (extensions.length > 0 && extensions.indexOf(fileExtension) === -1) {
             logger.log({ message: `File extension ignored: '${file}'` });
             return;
@@ -58,32 +68,39 @@ async function updateProjectUrls(rootPath = vscode.workspace.rootPath) {
 		
 		if (urlsFound && urlsFound.length > 0) {
             logger.log({ message: `${urlsFound.length} URL(s) found in "${filePath}".` });
-            await asyncForEach(urlsFound, (url: string) => _URLS.add(cleanURL(url)));
+
+            await asyncForEach(urlsFound, (url: string) => {
+                const urlInstance = new URL(cleanURL(url));
+                urlInstance.url.favicon = fallbackFaviconPath.toString();
+                
+                if (!_URLS.find(u => u.href === urlInstance.url.href)) {
+                    _URLS.push(urlInstance.url);
+                }
+            });
 		} else {
             logger.log({ message: `No URL found in "${filePath}".` });
         }
 	});
 }
 
-
-export const getURLs = async (forceSync = false) => {
+export const getURLs = async (forceSync = false): Promise<IURL[]>  => {
     if (forceSync) {
         await syncURLs();
     }
-
+    
     return _URLS;
 };
 
 export const syncURLs = async () => {
     try {
-        _URLS.clear();
+        _URLS = [];
 
         logger.clear();
         logger.log({ message: 'Syncing Project URLs ...', setStatusBarMessage: true });
         
         await updateProjectUrls();
 
-        logger.log({ message: `${_URLS.size} URL(s) found`, setStatusBarMessage: true });
+        logger.log({ message: `${_URLS.length} URL(s) found`, setStatusBarMessage: true });
     } catch (error) {
         logger.log({ message: error.message });
     }

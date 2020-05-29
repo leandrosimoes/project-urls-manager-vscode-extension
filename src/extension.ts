@@ -5,11 +5,14 @@ import { openCommand, syncCommand } from './commands';
 import { logger } from './services/logger';
 import { syncURLs, startAutoSync } from './services/urls';
 import { getConfigurations } from './services/configurations';
+import { setContext } from './services/context';
 
 export function activate(context: vscode.ExtensionContext) {
 	if (!vscode.workspace.rootPath) {
 		return;
 	}
+	
+	setContext(context);
 
 	logger.log({ message: `${EXTENSION_NAME} Started ...` });
 	

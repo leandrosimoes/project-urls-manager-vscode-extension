@@ -5,23 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{TITLE}}</title>
 
-    <style>
-        ul, li {
-            list-style: none;
-        }
-    </style>
+    {{STYLES}}
 </head>
 <body>
-    <h1>{{TITLE}}</h1>
-    <ul>
-        {{LIST_ITEMS}}
-    </ul>
-    <script>
-        document.addEventListener('readystatechange', () => {
-            if (document.readyState === 'complete') {
-                document.querySelector('h1').innerHTML = `${document.querySelector('h1').innerHTML}: from script`;
-            }
-        });
-    </script>
+    <main>
+        <h1>{{TITLE}}</h1>
+        <div id="errors" class="hidden"></div>
+        <ul data-bind="foreach: urls, visible: TemUrls">
+            <li>
+               <img 
+                    class="favicon" 
+                    alt="Domain favicon" 
+                    data-bind="attr: { src: favicon }" 
+                    onerror="this.style.display='none';this.onerror='';">
+                    <a data-bind="text: href, attr: { href: href, title: href }"></a>
+            </li>
+        </ul>
+        <button type="button" data-bind="click: increment">
+            Count: <span data-bind="text: count"></span>
+        </button>
+        {{SCRIPTS}}
+    </main>
 </body>
 </html>
