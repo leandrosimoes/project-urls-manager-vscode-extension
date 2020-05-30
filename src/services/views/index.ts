@@ -22,6 +22,22 @@ interface IIcon {
     mime: string;
 }
 
+// THIS MUST MATCH THE ActionTypes OBJECT IN script.js
+enum ActionTypes {
+    URL = 'URL',
+    ICON = 'ICON',
+    COPY = 'COPY',
+    IGNORE = 'IGNORE',
+    RESTORE = 'RESTORE',
+    TOGGLE_THEME = 'TOGGLE_THEME',
+    TOGGLE_SHOW_IGNORED = 'TOGGLE_SHOW_IGNORED'
+}
+
+enum Themes {
+    DARK = 'dark-theme',
+    LIGHT = 'light-theme'
+}
+
 const getStylesToInject = async (): Promise<string[] | undefined> => {
     const context = getContext();
 
@@ -73,14 +89,18 @@ const getScriptsToInject = async (): Promise<string[] | undefined> => {
     return scripts;
 };
 
-const prepareHTML = async (html: string) => {
+const prepareHTML = async (html: string, showIgnored: boolean) => {
     const context = getContext();
 
     if (!context) {
         return 'ERROR LOADING HTML CONTENT';
     }
 
+    html = html.replace(/{{SHOW_IGNORED}}/g, showIgnored ? ' show-ignored' : '');
+
     const scripts = await getScriptsToInject();
+    const currentTheme = context.workspaceState.get<string>('theme') || Themes.DARK;
+    html = html.replace(/{{THEME}}/g, currentTheme);
 
     if (scripts && scripts.length > 0) {
         html = html.replace(/{{SCRIPTS}}/g, scripts.join('\n'));
@@ -100,7 +120,7 @@ const prepareHTML = async (html: string) => {
     return html;
 };
 
-export const getHTML = async (force = false) => {
+export const getHTML = async (force = false, showIgnored: boolean) => {
     if (!force) {
         return _HTML;
     }
@@ -114,11 +134,91 @@ export const getHTML = async (force = false) => {
     const htmlFilePath = join(context.extensionPath, 'src', 'assets', 'index.html');
     let htmlFileContent = readFileSync(htmlFilePath).toString();
 
-    htmlFileContent = await prepareHTML(htmlFileContent);
+    htmlFileContent = await prepareHTML(htmlFileContent, showIgnored);
 
     _HTML = htmlFileContent;
 
     return _HTML;
+};
+
+const sendURLs = async (forceSync: boolean, showIgnored: boolean) => {
+    if (!_WebViewPanel) {
+        return;
+    }
+
+    const urls = (await getURLs(forceSync, showIgnored));
+    
+    await asyncForEach(urls, async (url: IURL) => {
+        if (url.favicon) {
+            url.favicon = _WebViewPanel?.webview.asWebviewUri(vscode.Uri.parse(url.favicon)).toString();
+        }
+    });
+
+    _WebViewPanel.webview.postMessage({ urls, type: ActionTypes.URL });
+
+    await asyncForEach(urls, async (url: IURL) => {
+        try {
+            const favicon: IIcon = await pageIcon(`${url.protocol}//${url.hostname}`);
+            url.favicon = favicon.source;
+            url.hasFavicon = true;
+        } catch (error) {}
+    });
+
+    _WebViewPanel.webview.postMessage({ urls, type: ActionTypes.URL });
+};
+
+const sendIcons = async () => {
+    const context = getContext();
+
+    if (!_WebViewPanel || !context) {
+        return;
+    }
+
+    const iconsPath = join(context.extensionPath, 'src', 'assets');
+    const icons: any = {};
+
+    const copyClipboardIconPath = _WebViewPanel.webview.asWebviewUri(vscode.Uri.file(join(iconsPath, 'copy-clipboard.png')));
+    const ignoreIconPath = _WebViewPanel.webview.asWebviewUri(vscode.Uri.file(join(iconsPath, 'ignore.png')));
+    const restoreIconPath = _WebViewPanel.webview.asWebviewUri(vscode.Uri.file(join(iconsPath, 'restore.png')));
+    icons['copy-clipboard'] = copyClipboardIconPath.toString();
+    icons['ignore'] = ignoreIconPath.toString();
+    icons['restore'] = restoreIconPath.toString();
+
+    _WebViewPanel.webview.postMessage({ icons, type: ActionTypes.ICON });
+};
+
+const restoreURLFromIgnoreList = async (url: string) => {
+    const context = getContext();
+
+    if (!context) {
+        return;
+    }
+
+    const ignoredURLs: string[] = (context.workspaceState.get<string[]>('ignoredURLs') || []);
+
+    if (ignoredURLs.indexOf(url) === -1) {
+        return;
+    }
+
+    context.workspaceState.update('ignoredURLs', ignoredURLs.filter(i => i !== url));
+};
+
+const addURLToIgnoreList = async (url: string) => {
+    const context = getContext();
+
+    if (!context) {
+        return;
+    }
+
+    const ignoredURLs: string[] = (context.workspaceState.get<string[]>('ignoredURLs') || []);
+
+    if (ignoredURLs.indexOf(url) > -1) {
+        return;
+    }
+
+    ignoredURLs.push(url);
+
+    context.workspaceState.update('ignoredURLs', ignoredURLs);
 };
 
 export const openWebview = async () => {
@@ -128,6 +228,7 @@ export const openWebview = async () => {
         return;
     }
 
+    const showIgnored = context.workspaceState.get<boolean>('showIgnored') || false;
     const column = vscode.window.activeTextEditor
         ? vscode.window.activeTextEditor.viewColumn
         : undefined;
@@ -143,32 +244,96 @@ export const openWebview = async () => {
         _WebViewPanel.onDidDispose(() => {
             _WebViewPanel = undefined;
         });
+
+        _WebViewPanel.webview.onDidReceiveMessage((message: any) => {
+            const currentContext = getContext();
+
+            if (!currentContext) {
+                return;
+            }
+
+            const currentShowIgnored = currentContext.workspaceState.get<boolean>('showIgnored') || false;
+
+            switch (message.type) {
+                case ActionTypes.COPY:
+                    const { url } = message;
+                    
+                    if (url) {
+                        vscode.env.clipboard.writeText(message.url);
+                    }
+
+                    break;
+
+                case ActionTypes.IGNORE:
+                    addURLToIgnoreList(message.url)
+                        .then(() => {
+                            getHTML(true, currentShowIgnored).then(html => {
+                                if (html && _WebViewPanel) {
+                                    _WebViewPanel.webview.html = html;
+        
+                                    sendIcons().then(() => {});
+                                    sendURLs(true, currentShowIgnored).then(() => {});
+                                }
+                            });
+                        });
+                    break;
+
+                case ActionTypes.RESTORE:
+                    restoreURLFromIgnoreList(message.url)
+                        .then(() => {
+                            getHTML(true, currentShowIgnored).then(html => {
+                                if (html && _WebViewPanel) {
+                                    _WebViewPanel.webview.html = html;
+        
+                                    sendIcons().then(() => {});
+                                    sendURLs(true, currentShowIgnored).then(() => {});
+                                }
+                            });
+                        });
+                    break;
+
+                case ActionTypes.TOGGLE_THEME:
+
+                    const currentTheme = currentContext.workspaceState.get<string>('theme') || Themes.DARK;
+                    currentContext.workspaceState.update('theme', currentTheme === Themes.DARK ? Themes.LIGHT : Themes.DARK);
+                    getHTML(true, currentShowIgnored).then(html => {
+                        if (html && _WebViewPanel) {
+                            _WebViewPanel.webview.html = html;
+
+                            sendIcons().then(() => {});
+                            sendURLs(true, currentShowIgnored).then(() => {});
+                        }
+                    });
+
+                    break;
+
+                case ActionTypes.TOGGLE_SHOW_IGNORED:
+
+                    currentContext.workspaceState.update('showIgnored', !currentShowIgnored);
+                    getHTML(true, !currentShowIgnored).then(html => {
+                        if (html && _WebViewPanel) {
+                            _WebViewPanel.webview.html = html;
+
+                            sendIcons().then(() => {});
+                            sendURLs(true, !currentShowIgnored).then(() => {});
+                        }
+                    });
+                    break;
+
+                default:
+                    break;
+            }
+        });
     }
 
-    const viewHtml = await getHTML(true);
+    const viewHtml = await getHTML(true, showIgnored);
 
     if (!viewHtml) {
         return;
     }
 
     _WebViewPanel.webview.html = viewHtml;
-    
-    const urls = (await getURLs(true));
-    
-    await asyncForEach(urls, async (url: IURL) => {
-        if (url.favicon) {
-            url.favicon = _WebViewPanel?.webview.asWebviewUri(vscode.Uri.parse(url.favicon)).toString();
-        }
-    });
 
-    _WebViewPanel.webview.postMessage({ urls });
-
-    await asyncForEach(urls, async (url: IURL) => {
-        try {
-            const favicon: IIcon = await pageIcon(`${url.protocol}//${url.hostname}`);
-            url.favicon = favicon.source;
-        } catch (error) {}
-    });
-
-    _WebViewPanel.webview.postMessage({ urls });
+    await sendIcons();
+    await sendURLs(true, showIgnored);
 };

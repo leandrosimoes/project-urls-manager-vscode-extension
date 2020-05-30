@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="{{THEME}}{{SHOW_IGNORED}}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,21 +9,43 @@
 </head>
 <body>
     <main>
+        <div class="toggle-ignore-control">
+            <div class="toggle"></div>
+            <img class="toggle-image" data-bind="attr: { src: icons()['ignore'] }, click: toggleShowIgnore" />
+            <img class="toggle-image" data-bind="attr: { src: icons()['restore'] }, click: toggleShowIgnore" />
+        </div>
+        <div class="toggle-theme-control">
+            <div class="toggle"></div>
+            <i data-bind="click: toggleTheme">🌞</i>
+            <i data-bind="click: toggleTheme">🌙</i>
+        </div>
         <h1>{{TITLE}}</h1>
         <div id="errors" class="hidden"></div>
-        <ul data-bind="foreach: urls, visible: TemUrls">
-            <li>
-               <img 
+        <div id="urls-list" data-bind="foreach: urls, visible: TemUrls">
+            <div class="url-wrapper" data-bind="css: { 'ignored': isIgnored }">
+                <div class="url-favicon">
+                    <img 
                     class="favicon" 
                     alt="Domain favicon" 
-                    data-bind="attr: { src: favicon }" 
+                    data-bind="attr: { src: favicon }, css: { 'default-favicon': !hasFavicon }" 
                     onerror="this.style.display='none';this.onerror='';">
+                </div>
+                <div class="url-info">
                     <a data-bind="text: href, attr: { href: href, title: href }"></a>
-            </li>
-        </ul>
-        <button type="button" data-bind="click: increment">
-            Count: <span data-bind="text: count"></span>
-        </button>
+                </div>
+                <div class="url-actions">
+                    <button type="button" class="url-action" data-bind="click: () => { $root.copyToClipboard($data.href) }">
+                        <img class="url-action-icon" data-bind="attr: { src: $root.icons()['copy-clipboard'] }" />Copy
+                    </button>
+                    <button type="button" class="url-action" data-bind="visible: !isIgnored, click: () => { $root.ignore($data.href) }">
+                        <img class="url-action-icon" data-bind="attr: { src: $root.icons()['ignore'] }" />Ignore
+                    </button>
+                    <button type="button" class="url-action" data-bind="visible: isIgnored, click: () => { $root.restore($data.href) }">
+                        <img class="url-action-icon" data-bind="attr: { src: $root.icons()['restore'] }" />Restore
+                    </button>
+                </div>
+            </div>
+        </div>
         {{SCRIPTS}}
     </main>
 </body>

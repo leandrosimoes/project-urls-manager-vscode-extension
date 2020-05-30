@@ -20,15 +20,17 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(syncCommand);
 	context.subscriptions.push(logger.getStatusBarInstance());
 
+	const showIgnored = context.workspaceState.get<boolean>('showIgnored') || false;
+
 	// Syncing URLS on start
 	(async () => {
 		const configurations = await getConfigurations();
 
 		if (configurations?.autoSync) {
-			await startAutoSync();
+			await startAutoSync(showIgnored);
 		}
 
-		await syncURLs();
+		await syncURLs(showIgnored);
 	})();
 }
 

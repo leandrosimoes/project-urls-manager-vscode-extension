@@ -15,7 +15,7 @@ function cleanURL(url: string) {
     return url.replace(/[\'\"\(\)\`\´,\\\{\}\<\>\|\^]/g, '').trim();
 }
 
-async function updateProjectUrls(rootPath = vscode.workspace.rootPath) {
+async function updateProjectUrls(rootPath = vscode.workspace.rootPath, showIgnored?: boolean) {
 	if (!rootPath) {
 		return;
 	};
@@ -43,7 +43,7 @@ async function updateProjectUrls(rootPath = vscode.workspace.rootPath) {
                 return;
             }
 
-			await updateProjectUrls(filePath);
+			await updateProjectUrls(filePath, showIgnored);
 			return;
         }
         
@@ -65,40 +65,42 @@ async function updateProjectUrls(rootPath = vscode.workspace.rootPath) {
 
 		const content = readFileSync(filePath).toString();
 		const urlsFound = content.match(/(https?:\/\/[^ ]*)/g);
+        const ignoredURLs: string[] = (context.workspaceState.get<string[]>('ignoredURLs') || []);
 		
 		if (urlsFound && urlsFound.length > 0) {
-            logger.log({ message: `${urlsFound.length} URL(s) found in "${filePath}".` });
-
             await asyncForEach(urlsFound, (url: string) => {
                 const urlInstance = new URL(cleanURL(url));
-                urlInstance.url.favicon = fallbackFaviconPath.toString();
-                
-                if (!_URLS.find(u => u.href === urlInstance.url.href)) {
+                if ((showIgnored || ignoredURLs.indexOf(urlInstance.url.href) === -1) && !_URLS.find(u => u.href === urlInstance.url.href)) {
+                    urlInstance.url.favicon = fallbackFaviconPath.toString();
+                    urlInstance.url.isIgnored = (ignoredURLs.indexOf(urlInstance.url.href) > -1);
+                    urlInstance.url.hasFavicon = false;
                     _URLS.push(urlInstance.url);
                 }
             });
+
+            logger.log({ message: `${urlsFound.length} URL(s) found in "${filePath}".` });
 		} else {
             logger.log({ message: `No URL found in "${filePath}".` });
         }
 	});
 }
 
-export const getURLs = async (forceSync = false): Promise<IURL[]>  => {
+export const getURLs = async (forceSync = false, showIgnored: boolean): Promise<IURL[]>  => {
     if (forceSync) {
-        await syncURLs();
+        await syncURLs(showIgnored);
     }
     
     return _URLS;
 };
 
-export const syncURLs = async () => {
+export const syncURLs = async (showIgnored: boolean) => {
     try {
         _URLS = [];
 
         logger.clear();
         logger.log({ message: 'Syncing Project URLs ...', setStatusBarMessage: true });
         
-        await updateProjectUrls();
+        await updateProjectUrls(undefined, showIgnored);
 
         logger.log({ message: `${_URLS.length} URL(s) found`, setStatusBarMessage: true });
     } catch (error) {
@@ -106,7 +108,7 @@ export const syncURLs = async () => {
     }
 };
 
-export const startAutoSync = async () => {
+export const startAutoSync = async (showIgnored: boolean) => {
     try {
         if (autoSyncInterval) {
             clearInterval(autoSyncInterval);
@@ -129,7 +131,7 @@ export const startAutoSync = async () => {
                 (async () => {
                     logger.log({ message: `Auto sync ...` });
 
-                    await syncURLs();
+                    await syncURLs(showIgnored);
                 })();
             }, minutes);
         }
