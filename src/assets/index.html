@@ -22,12 +22,13 @@
         <h1>{{TITLE}}</h1>
         <div id="errors" class="hidden"></div>
         <div id="urls-list" data-bind="foreach: urls, visible: TemUrls">
+            <div class="url-domain" data-bind="text: host"></div>
             <div class="url-wrapper" data-bind="css: { 'ignored': isIgnored }">
                 <div class="url-favicon">
                     <img 
                     class="favicon" 
                     alt="Domain favicon" 
-                    data-bind="attr: { src: favicon }, css: { 'default-favicon': !hasFavicon }" 
+                    data-bind="attr: { src: favicon }, css: { 'default-favicon': !hasFavicon() }" 
                     onerror="this.style.display='none';this.onerror='';">
                 </div>
                 <div class="url-info">

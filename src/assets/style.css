@@ -12,6 +12,7 @@ html:not(.light-theme) {
   --pam-action-foreground: #fff;
   --pam-action-border: #007acc;
   --pam-url-background: #131313;
+  --pam-url-domain-foreground: #646464;
   --pam-url-ignored-background: #131313;
   --pam-toggle-control-background: rgba(0,0,0,.5);
   --pam-toggle-box-shadow: #000;
@@ -29,6 +30,7 @@ html.light-theme {
   --pam-action-border: #f2f2f2;
   --pam-url-background: #fff;
   --pam-url-ignored-background: #f2f2f2;
+  --pam-url-domain-foreground: #646464;
   --pam-toggle-control-background: #f2f2f2;
   --pam-toggle-box-shadow: rgba(0,0,0,.1);
   --pam-toggle-background: #292929;
@@ -129,6 +131,13 @@ html:not(.light-theme) .favicon.default-favicon {
 #urls-list {
     display: flex;
     flex-direction: column;
+}
+
+.url-domain {
+  color: var(--pam-url-domain-foreground);
+  padding: 15px 0;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--pam-url-domain-foreground);
 }
 
 .url-wrapper {

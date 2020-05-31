@@ -4,6 +4,7 @@
             const errorsDiv = document.querySelector('#errors');
             const ActionTypes = {
                 URL: 'URL',
+                URL_ICON: 'URL_ICON',
                 ICON: 'ICON',
                 COPY: 'COPY',
                 IGNORE: 'IGNORE',
@@ -72,17 +73,32 @@
                 ko.applyBindings(window.pam.model);
 
                 window.addEventListener('message', event => {
-                    const { type } = event.data;
+                    const { type, urls, icons } = event.data;
 
                     switch (type) {
 
                         case ActionTypes.URL:
-                            const { urls } = event.data;
-                            window.pam.model.urls(urls);
+                            window.pam.model.urls(urls.map(url => {
+                                url.hasFavicon = ko.observable(url.hasFavicon);
+                                url.favicon = ko.observable(url.favicon);
+                                return url;
+                            }));
+
+                            break;
+
+                        case ActionTypes.URL_ICON:
+                            window.pam.model.urls().forEach(url => {
+                                const foundURL = urls.find(u => u.baseURL === url.baseURL);
+                                
+                                if (foundURL && foundURL.hasFavicon && foundURL.favicon !== url.favicon()) {
+                                    url.favicon(foundURL.favicon);
+                                    url.hasFavicon(true);
+                                }
+                            });
+
                             break;
                         
                         case ActionTypes.ICON:
-                            const { icons } = event.data;
                             window.pam.model.icons(icons);
                             break;
                     

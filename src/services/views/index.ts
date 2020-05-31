@@ -22,9 +22,17 @@ interface IIcon {
     mime: string;
 }
 
+interface CacheIcon extends IIcon {
+    baseURL: string;
+    base64: string;
+}
+
+const DUMMY_CACHE: CacheIcon[] = [];
+
 // THIS MUST MATCH THE ActionTypes OBJECT IN script.js
 enum ActionTypes {
     URL = 'URL',
+    URL_ICON = 'URL_ICON',
     ICON = 'ICON',
     COPY = 'COPY',
     IGNORE = 'IGNORE',
@@ -149,22 +157,56 @@ const sendURLs = async (forceSync: boolean, showIgnored: boolean) => {
     const urls = (await getURLs(forceSync, showIgnored));
     
     await asyncForEach(urls, async (url: IURL) => {
-        if (url.favicon) {
+        const cachedIcon = DUMMY_CACHE.find(c => c.baseURL === url.baseURL);
+
+        if (cachedIcon) {
+            url.favicon = cachedIcon.base64;
+            url.hasFavicon = true;
+        } else if (url.favicon) {
             url.favicon = _WebViewPanel?.webview.asWebviewUri(vscode.Uri.parse(url.favicon)).toString();
         }
     });
 
-    _WebViewPanel.webview.postMessage({ urls, type: ActionTypes.URL });
+    _WebViewPanel.webview.postMessage({ urls: urls.sort((a,b) => {
+        if (!a.host || !b.host) {
+            return 1;
+        }
+
+        return a.host >= b.host ? 1 : -1; 
+    }), type: ActionTypes.URL });
+
+    await sendFavicons(urls.filter(url => !url.hasFavicon));
+};
+
+const sendFavicons = async (urls: IURL[]) => {
+    if (!_WebViewPanel || !urls || urls.length === 0) {
+        return;
+    }
 
     await asyncForEach(urls, async (url: IURL) => {
         try {
-            const favicon: IIcon = await pageIcon(`${url.protocol}//${url.hostname}`);
-            url.favicon = favicon.source;
-            url.hasFavicon = true;
+            const cachedIcon = DUMMY_CACHE.find(c => c.baseURL === url.baseURL);
+
+            if (cachedIcon) {
+                url.favicon = cachedIcon.base64;
+                url.hasFavicon = true;
+            } else {
+                const favicon: IIcon = await pageIcon(`${url.protocol}//${url.hostname}`);
+                const cacheIcon = { 
+                    ...favicon, 
+                    baseURL: url.baseURL, 
+                    base64: `data:${favicon.mime};base64, ${favicon.data.toString('base64')}` 
+                };
+
+                url.favicon = cacheIcon.base64;
+                url.hasFavicon = true;
+
+                DUMMY_CACHE.push(cacheIcon);
+            }
         } catch (error) {}
     });
 
-    _WebViewPanel.webview.postMessage({ urls, type: ActionTypes.URL });
+    _WebViewPanel.webview.postMessage({ urls, type: ActionTypes.URL_ICON });
 };
 
 const sendIcons = async () => {

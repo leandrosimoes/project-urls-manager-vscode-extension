@@ -70,7 +70,7 @@ async function updateProjectUrls(rootPath = vscode.workspace.rootPath, showIgnor
 		if (urlsFound && urlsFound.length > 0) {
             await asyncForEach(urlsFound, (url: string) => {
                 const urlInstance = new URL(cleanURL(url));
-                if ((showIgnored || ignoredURLs.indexOf(urlInstance.url.href) === -1) && !_URLS.find(u => u.href === urlInstance.url.href)) {
+                if (urlInstance.url.host && (showIgnored || ignoredURLs.indexOf(urlInstance.url.href) === -1) && !_URLS.find(u => u.href === urlInstance.url.href)) {
                     urlInstance.url.favicon = fallbackFaviconPath.toString();
                     urlInstance.url.isIgnored = (ignoredURLs.indexOf(urlInstance.url.href) > -1);
                     urlInstance.url.hasFavicon = false;
