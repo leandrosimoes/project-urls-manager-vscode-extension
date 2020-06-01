@@ -9,45 +9,56 @@
 </head>
 <body>
     <main>
-        <div class="toggle-ignore-control">
-            <div class="toggle"></div>
-            <img class="toggle-image" data-bind="attr: { src: icons()['ignore'] }, click: toggleShowIgnore" />
-            <img class="toggle-image" data-bind="attr: { src: icons()['restore'] }, click: toggleShowIgnore" />
-        </div>
-        <div class="toggle-theme-control">
-            <div class="toggle"></div>
-            <i data-bind="click: toggleTheme">🌞</i>
-            <i data-bind="click: toggleTheme">🌙</i>
-        </div>
         <h1>{{TITLE}}</h1>
+        <div id="controls-area">
+            <div class="control">
+                <input id="search-input" type="text" data-bind="delayChangeInputCallback: delayChangeInputCallbackOptions" placeholder="Type to search">
+            </div>
+            <div class="toggle-ignore-control control">
+                <div class="toggle"></div>
+                <img class="toggle-image" data-bind="attr: { src: icons()['ignore'] }, click: toggleShowIgnore" title="Show Ignored URLs" />
+                <img class="toggle-image" data-bind="attr: { src: icons()['restore'] }, click: toggleShowIgnore" title="Hide Ignored URLs" />
+            </div>
+            <div class="toggle-theme-control control">
+                <div class="toggle"></div>
+                <i data-bind="click: toggleTheme" title="Switch to Light Theme">🌞</i>
+                <i data-bind="click: toggleTheme" title="Switch to Dark Theme">🌙</i>
+            </div>
+        </div>
         <div id="errors" class="hidden"></div>
+        <div class="no-urls" data-bind="visible: !TemUrls()">
+            <span>🙁 No URLs found</span>
+        </div>
         <div id="urls-list" data-bind="foreach: urls, visible: TemUrls">
-            <div class="url-domain" data-bind="text: host"></div>
-            <div class="url-wrapper" data-bind="css: { 'ignored': isIgnored }">
-                <div class="url-favicon">
-                    <img 
-                    class="favicon" 
-                    alt="Domain favicon" 
-                    data-bind="attr: { src: favicon }, css: { 'default-favicon': !hasFavicon() }" 
-                    onerror="this.style.display='none';this.onerror='';">
-                </div>
-                <div class="url-info">
-                    <a data-bind="text: href, attr: { href: href, title: href }"></a>
-                </div>
-                <div class="url-actions">
-                    <button type="button" class="url-action" data-bind="click: () => { $root.copyToClipboard($data.href) }">
-                        <img class="url-action-icon" data-bind="attr: { src: $root.icons()['copy-clipboard'] }" />Copy
-                    </button>
-                    <button type="button" class="url-action" data-bind="visible: !isIgnored, click: () => { $root.ignore($data.href) }">
-                        <img class="url-action-icon" data-bind="attr: { src: $root.icons()['ignore'] }" />Ignore
-                    </button>
-                    <button type="button" class="url-action" data-bind="visible: isIgnored, click: () => { $root.restore($data.href) }">
-                        <img class="url-action-icon" data-bind="attr: { src: $root.icons()['restore'] }" />Restore
-                    </button>
+            <div data-bind="visible: show">
+                <div class="url-domain" data-bind="text: host, visible: showDomain"></div>
+                <div class="url-wrapper" data-bind="css: { 'ignored': isIgnored }">
+                    <div class="url-favicon">
+                        <img 
+                        class="favicon" 
+                        alt="Domain favicon" 
+                        data-bind="attr: { src: favicon }, css: { 'default-favicon': !hasFavicon() }" 
+                        onerror="this.style.display='none';this.onerror='';">
+                    </div>
+                    <div class="url-info">
+                        <a data-bind="text: href, attr: { href: href, title: href }"></a>
+                    </div>
+                    <div class="url-actions">
+                        <button type="button" class="url-action" data-bind="click: () => { $root.copyToClipboard($data.href) }">
+                            <img class="url-action-icon" data-bind="attr: { src: $root.icons()['copy-clipboard'] }" />Copy
+                        </button>
+                        <button type="button" class="url-action" data-bind="visible: !isIgnored, click: () => { $root.ignore($data.href) }">
+                            <img class="url-action-icon" data-bind="attr: { src: $root.icons()['ignore'] }" />Ignore
+                        </button>
+                        <button type="button" class="url-action" data-bind="visible: isIgnored, click: () => { $root.restore($data.href) }">
+                            <img class="url-action-icon" data-bind="attr: { src: $root.icons()['restore'] }" />Restore
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
         {{SCRIPTS}}
     </main>
+    <a type="button" id="help-button" href="https://github.com/leandrosimoes/project-urls-manager-vscode-extension" target="_blank">Need Help?</a>
 </body>
 </html>

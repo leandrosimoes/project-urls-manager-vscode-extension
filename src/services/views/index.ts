@@ -167,13 +167,15 @@ const sendURLs = async (forceSync: boolean, showIgnored: boolean) => {
         }
     });
 
-    _WebViewPanel.webview.postMessage({ urls: urls.sort((a,b) => {
+    const orderedURLs = urls.sort((a,b) => {
         if (!a.host || !b.host) {
             return 1;
         }
 
         return a.host >= b.host ? 1 : -1; 
-    }), type: ActionTypes.URL });
+    });
+
+    _WebViewPanel.webview.postMessage({ urls: orderedURLs, type: ActionTypes.URL });
 
     await sendFavicons(urls.filter(url => !url.hasFavicon));
 };

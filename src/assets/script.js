@@ -1,6 +1,20 @@
 ;(() => {
     document.addEventListener('readystatechange', () => {
         if (document.readyState === 'complete') {
+            let _delayChangeInputCallback_timeout;
+            ko.bindingHandlers.delayChangeInputCallback = {
+                init: (element, valueAccessor) => {
+                    const { delay = 1000, callback } = valueAccessor();
+        
+                    element.addEventListener('keyup', event => {
+                        clearTimeout(_delayChangeInputCallback_timeout);
+                        _delayChangeInputCallback_timeout = setTimeout(() => {
+                            !!callback && callback(event.target.value || '');
+                        }, delay);
+                    });
+                }
+            };
+
             const errorsDiv = document.querySelector('#errors');
             const ActionTypes = {
                 URL: 'URL',
@@ -17,14 +31,24 @@
                 function ViewModel() {
                     const self = this;
                     const vscode = acquireVsCodeApi();
+                    let searchTimeout = null;
 
                     // observables
                     self.urls = ko.observable([]);
                     self.icons = ko.observable([]);
+                    self.searchText = ko.observable('');
+                    self.delayChangeInputCallbackOptions = {
+                        delay: 1000, // miliseconds
+                        callback: value => {
+                            window.pam.model.urls().forEach(url => {
+                                url.show(!value || url.href.indexOf(value) > -1);
+                            });
+                        }
+                    };
 
                     // computeds
                     self.TemUrls = ko.computed(() => { 
-                        return self.urls().length > 0; 
+                        return self.urls().filter(url => url.show()).length > 0;
                     });
 
                     // functions
@@ -78,11 +102,17 @@
                     switch (type) {
 
                         case ActionTypes.URL:
-                            window.pam.model.urls(urls.map(url => {
+                            let lastDomain = '';
+                            const bindedURLs = urls.map(url => {
                                 url.hasFavicon = ko.observable(url.hasFavicon);
                                 url.favicon = ko.observable(url.favicon);
+                                url.show = ko.observable(true);
+                                url.showDomain = ko.observable(lastDomain !== url.host);
+                                lastDomain = url.host;
                                 return url;
-                            }));
+                            });
+
+                            window.pam.model.urls(bindedURLs);
 
                             break;
 

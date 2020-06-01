@@ -5,6 +5,7 @@
 html:not(.light-theme) {
   --pam-background: #1e1e1e;
   --pam-foreground: #007acc;
+  --pam-not-urls-foreground: #f2f2f2;
   --pam-error-color: #ff5353;
   --pam-box-shadow-color: rgba(0,0,0,.1);
   --pam-border-color: #131313;
@@ -22,6 +23,7 @@ html:not(.light-theme) {
 html.light-theme {
   --pam-background: #fff;
   --pam-foreground: #292929;
+  --pam-not-urls-foreground: #292929;
   --pam-error-color: #ff5353;
   --pam-box-shadow-color: rgba(0,0,0,.1);
   --pam-border-color: #f2f2f2;
@@ -43,16 +45,37 @@ body {
     width: 100%;
     height: 100%;
     color: var(--pam-foreground);
+    background-color: var(--pam-background);
     overflow: hidden;
 }
 
 main {
-    background-color: var(--pam-background);
-    width: 100%;
+    width: 70%;
     height: 100%;
     padding: 20px;
+    margin: 0 auto;
     overflow-x: hidden;
     overflow-y: auto;
+}
+
+#controls-area {
+  display: flex;
+  flex-wrap: wrap;
+  min-width: 300px;
+}
+
+.control {
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+#search-input {
+  outline: none;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 3px;
+  width: 300px;
+  border: 1px solid var(--pam-border-color);
 }
 
 .toggle-theme-control i {
@@ -75,7 +98,7 @@ html:not(.light-theme) .toggle-ignore-control img {
 
 .toggle-theme-control,
 .toggle-ignore-control {
-    position: absolute;
+    position: relative;
     width: 60px;
     height: 28px;
     display: flex;
@@ -83,16 +106,6 @@ html:not(.light-theme) .toggle-ignore-control img {
     background-color: var(--pam-toggle-control-background);
     padding: 5px;
     border-radius: 60px;
-}
-
-.toggle-theme-control {
-  right: 5%;
-  top: 5%;
-}
-
-.toggle-ignore-control {
-  right: calc(5% + 70px);
-  top: 5%;
 }
 
 .toggle {
@@ -116,6 +129,12 @@ html:not(.show-ignored) .toggle-ignore-control .toggle {
 
 .hidden {
     display: none !important;
+}
+
+.no-urls {
+  color: var(--pam-not-urls-foreground);
+  font-size: 20px;
+  margin-top: 15px;
 }
 
 .favicon {
@@ -167,6 +186,7 @@ html:not(.light-theme) .favicon.default-favicon {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
+  min-width: 300px;
 }
 
 .url-info input {
@@ -257,4 +277,11 @@ html.light-theme .url-action:active {
 }
 ::-webkit-scrollbar-corner {
   background: transparent;
+}
+
+#help-button {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  outline: none;
 }
