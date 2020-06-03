@@ -16,12 +16,16 @@
 	"contributes": {
 		"commands": [
 			{
-				"command": "project-urls-manager.openProjectUrlsManager",
-				"title": "Open: Project URLs Manager"
+				"command": "project-urls-manager.open",
+				"title": "Project URLs Manager: OPEN"
 			},
 			{
-				"command": "project-urls-manager.syncProjectUrls",
-				"title": "Sync: Project URLs"
+				"command": "project-urls-manager.sync",
+				"title": "Project URLs Manager: SYNC"
+			},
+			{
+				"command": "project-urls-manager.clearCache",
+				"title": "Project URLs Manager: CLEAR CACHE"
 			}
 		]
 	},

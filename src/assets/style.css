@@ -18,6 +18,8 @@ html:not(.light-theme) {
   --pam-toggle-control-background: rgba(0,0,0,.5);
   --pam-toggle-box-shadow: #000;
   --pam-toggle-background: #007acc;
+  --pam-loading-background: rgba(0,0,0,.9);
+  --pam-loading-foreground: #007acc;
 }
 
 html.light-theme {
@@ -36,6 +38,8 @@ html.light-theme {
   --pam-toggle-control-background: #f2f2f2;
   --pam-toggle-box-shadow: rgba(0,0,0,.1);
   --pam-toggle-background: #292929;
+  --pam-loading-background: rgba(255,255,255,.9);
+  --pam-loading-foreground: #292929;
 }
 
 html,
@@ -48,6 +52,25 @@ body {
     background-color: var(--pam-background);
     overflow: hidden;
 }
+
+body.loading::after {
+  content: 'Loading ...';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--pam-loading-background);
+  color: var(--pam-loading-foreground);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  font-size: 20px;
+  z-index: 99999;
+}
+
 
 main {
     width: 70%;
@@ -137,12 +160,6 @@ html:not(.show-ignored) .toggle-ignore-control .toggle {
   margin-top: 15px;
 }
 
-.favicon {
-    width: 70px;
-    height: 70px;
-    border-radius: 3px;
-}
-
 html:not(.light-theme) .favicon.default-favicon {
   filter: invert(1);
 }
@@ -189,23 +206,37 @@ html:not(.light-theme) .favicon.default-favicon {
   min-width: 300px;
 }
 
-.url-info input {
-    border: none;
-    background: var(--pam-background);
-    width: 100%;
-    cursor: default;
-    pointer-events: none;
-}
-
-.url-info a {
+.url-info .url-href {
     font-size: 20px;
     color: var(--pam-foreground);
 }
 
+.url-info .url-description-input {
+    border: none;
+    background-color: transparent;
+    color: var(--pam-url-domain-foreground);
+    font-size: 14px;
+    margin-top: 5px;
+    padding: 5px 0;
+    outline: none;
+    width: 100%;
+    height: 100%;
+    border-radius: 3px;
+    overflow: hidden;
+    resize: none;
+}
+
 .url-favicon {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
+    align-self: stretch;
+}
+
+.favicon {
+    width: 70px;
+    height: 70px;
+    border-radius: 3px;
 }
 
 .url-actions {
@@ -213,6 +244,8 @@ html:not(.light-theme) .favicon.default-favicon {
     flex-direction: row;
     padding-right: 10px;
     margin: 5px;
+    align-self: stretch;
+    align-items: flex-start;
 }
 
 .url-action {
@@ -283,5 +316,12 @@ html.light-theme .url-action:active {
   position: fixed;
   bottom: 30px;
   right: 30px;
+  outline: none;
+}
+
+#github-button {
+  position: fixed;
+  bottom: 30px;
+  left: 30px;
   outline: none;
 }

@@ -15,7 +15,7 @@ function cleanURL(url: string) {
     return url.replace(/[\'\"\(\)\`\´,\\\{\}\<\>\|\^]/g, '').trim();
 }
 
-async function updateProjectUrls(rootPath = vscode.workspace.rootPath, showIgnored?: boolean) {
+async function searchForWorkspaceURLs(rootPath = vscode.workspace.rootPath) {
 	if (!rootPath) {
 		return;
 	};
@@ -29,8 +29,6 @@ async function updateProjectUrls(rootPath = vscode.workspace.rootPath, showIgnor
         return;
     }
 
-    const assetsPath = join(context.extensionPath, 'src', 'assets');
-    const fallbackFaviconPath = vscode.Uri.file(join(assetsPath, 'fallback-favicon.png'));
 
     const files = readdirSync(rootPath);
 	await asyncForEach(files, async (file: string) => {
@@ -43,8 +41,7 @@ async function updateProjectUrls(rootPath = vscode.workspace.rootPath, showIgnor
                 return;
             }
 
-			await updateProjectUrls(filePath, showIgnored);
-			return;
+			return await searchForWorkspaceURLs(filePath);
         }
         
 
@@ -65,16 +62,15 @@ async function updateProjectUrls(rootPath = vscode.workspace.rootPath, showIgnor
 
 		const content = readFileSync(filePath).toString();
 		const urlsFound = content.match(/(https?:\/\/[^ ]*)/g);
-        const ignoredURLs: string[] = (context.workspaceState.get<string[]>('ignoredURLs') || []);
-		
+
 		if (urlsFound && urlsFound.length > 0) {
             await asyncForEach(urlsFound, (url: string) => {
-                const urlInstance = new URL(cleanURL(url));
-                if (urlInstance.url.host && (showIgnored || ignoredURLs.indexOf(urlInstance.url.href) === -1) && !_URLS.find(u => u.href === urlInstance.url.href)) {
-                    urlInstance.url.favicon = fallbackFaviconPath.toString();
-                    urlInstance.url.isIgnored = (ignoredURLs.indexOf(urlInstance.url.href) > -1);
-                    urlInstance.url.hasFavicon = false;
-                    _URLS.push(urlInstance.url);
+                const href = cleanURL(url);
+                const urlInstance = new URL(href).url;
+                urlInstance.hasFavicon = false;
+
+                if (urlInstance && urlInstance.host) {
+                    _URLS.push(urlInstance);
                 }
             });
 
@@ -82,27 +78,70 @@ async function updateProjectUrls(rootPath = vscode.workspace.rootPath, showIgnor
 		} else {
             logger.log({ message: `No URL found in "${filePath}".` });
         }
-	});
+    });
+    
+    return _URLS;
 }
 
 export const getURLs = async (forceSync = false, showIgnored: boolean): Promise<IURL[]>  => {
+    const context = getContext();
+
+    if (!context) {
+        return _URLS;
+    }
+
     if (forceSync) {
         await syncURLs(showIgnored);
     }
+
+    const existentURLs = (context.workspaceState.get<IURL[]>("urls") || []).sort((a,b) => {
+        if (!a.host || !b.host) {
+            return 1;
+        }
+
+        return a.host >= b.host ? 1 : -1; 
+    });
     
-    return _URLS;
+    return existentURLs.filter(ex => showIgnored || !ex.isIgnored);
 };
 
 export const syncURLs = async (showIgnored: boolean) => {
     try {
+        const context = getContext();
+
+        if (!context) {
+            logger.log({ message: `0 URL(s) found`, setStatusBarMessage: true });
+            return;
+        }
+        
         _URLS = [];
+
+        let existentURLs: IURL[] = (context.workspaceState.get<IURL[]>('urls') || []);
 
         logger.clear();
         logger.log({ message: 'Syncing Project URLs ...', setStatusBarMessage: true });
         
-        await updateProjectUrls(undefined, showIgnored);
+        _URLS = await searchForWorkspaceURLs(undefined) || [];
 
-        logger.log({ message: `${_URLS.length} URL(s) found`, setStatusBarMessage: true });
+        // ADD URL TO THE existentURLs IF NOT ALREADY EXISTS
+        await asyncForEach(_URLS, async (urlFound: IURL) => {
+            const existent = existentURLs.find(ex => ex.href === urlFound.href);
+            if (!existent && urlFound.host) {
+                existentURLs.push(urlFound);
+            }
+        });
+
+        // REMOVE FROM existentURLs URLs THAT WAS NOT FOUND IN FILES ANYMORE
+        await asyncForEach(existentURLs, async (existent: IURL) => {
+            const urlFound = _URLS.find(ex => ex.href === existent.href);
+            if (!urlFound) {
+                existentURLs = existentURLs.filter(ex => ex.href !== existent.href);
+            }
+        });
+
+        context.workspaceState.update('urls', existentURLs);
+
+        logger.log({ message: `${existentURLs.filter(ex => showIgnored || !ex.isIgnored).length} URL(s) found`, setStatusBarMessage: true });
     } catch (error) {
         logger.log({ message: error.message });
     }
@@ -138,4 +177,62 @@ export const startAutoSync = async (showIgnored: boolean) => {
     } catch (error) {
         logger.log({ message: `Error starting auto sync: ${error.message}` });
     }
+};
+
+export const saveURLDescription = async (url: IURL) => {
+    const context = getContext();
+
+    if (!context) {
+        return;
+    }
+
+    const urlsFound: IURL[] = (context.workspaceState.get<IURL[]>('urls') || []);
+    
+    if (urlsFound.length <= 0) {
+        return;
+    }
+
+    await asyncForEach(urlsFound, async (found: IURL) => {
+        if (found.href === url.href) {
+            found.description = url.description;
+        }
+    });
+
+    context.workspaceState.update('urls', urlsFound);
+};
+
+export const restoreURLFromIgnoreList = async (url: IURL) => {
+    const context = getContext();
+
+    if (!context) {
+        return;
+    }
+
+    const existentURLs: IURL[] = (context.workspaceState.get<IURL[]>('urls') || []);
+    
+    await asyncForEach (existentURLs, async (existent: IURL) => {
+        if (existent.href === url.href) {
+            existent.isIgnored = false;
+        }
+    });
+
+    context.workspaceState.update('urls', existentURLs);
+};
+
+export const addURLToIgnoreList = async (url: IURL) => {
+    const context = getContext();
+
+    if (!context) {
+        return;
+    }
+
+    const existentURLs: IURL[] = (context.workspaceState.get<IURL[]>('urls') || []);
+    
+    await asyncForEach (existentURLs, async (existent: IURL) => {
+        if (existent.href === url.href) {
+            existent.isIgnored = true;
+        }
+    });
+
+    context.workspaceState.update('urls', existentURLs);
 };

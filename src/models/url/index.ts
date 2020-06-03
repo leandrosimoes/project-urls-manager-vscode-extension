@@ -5,6 +5,7 @@ export interface IURL extends Url {
     favicon: string | undefined
     isIgnored: boolean
     hasFavicon: boolean
+    description: string
 }
 
 export class URL {
@@ -16,7 +17,8 @@ export class URL {
             baseURL: url, 
             favicon: undefined, 
             isIgnored: false, 
-            hasFavicon: false
+            hasFavicon: false,
+            description: ''
         };
     }
 

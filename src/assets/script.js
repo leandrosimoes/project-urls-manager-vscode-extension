@@ -3,13 +3,13 @@
         if (document.readyState === 'complete') {
             let _delayChangeInputCallback_timeout;
             ko.bindingHandlers.delayChangeInputCallback = {
-                init: (element, valueAccessor) => {
+                init: (element, valueAccessor, allBindings, viewModel, bindingContext) => {
                     const { delay = 1000, callback } = valueAccessor();
         
                     element.addEventListener('keyup', event => {
                         clearTimeout(_delayChangeInputCallback_timeout);
                         _delayChangeInputCallback_timeout = setTimeout(() => {
-                            !!callback && callback(event.target.value || '');
+                            !!callback && callback(event.target.value || '', bindingContext.$data);
                         }, delay);
                     });
                 }
@@ -23,6 +23,9 @@
                 COPY: 'COPY',
                 IGNORE: 'IGNORE',
                 RESTORE: 'RESTORE',
+                START_LOADING: 'START_LOADING',
+                STOP_LOADING: 'STOP_LOADING',
+                SAVE_URL_DESCRIPTION: 'SAVE_URL_DESCRIPTION',
                 TOGGLE_THEME: 'TOGGLE_THEME',
                 TOGGLE_SHOW_IGNORED: 'TOGGLE_SHOW_IGNORED'
             };
@@ -34,10 +37,11 @@
                     let searchTimeout = null;
 
                     // observables
+                    self.isLoading = ko.observable(true);
                     self.urls = ko.observable([]);
                     self.icons = ko.observable([]);
                     self.searchText = ko.observable('');
-                    self.delayChangeInputCallbackOptions = {
+                    self.delayChangeSearchInputCallbackOptions = {
                         delay: 1000, // miliseconds
                         callback: value => {
                             window.pam.model.urls().forEach(url => {
@@ -45,6 +49,26 @@
                             });
                         }
                     };
+                    self.delayChangeURLDescriptionInputCallbackOptions = {
+                        delay: 1000, // miliseconds
+                        callback: (value, data) => {
+                            if (!data) {
+                                return;
+                            }
+                            
+                            self.saveURLDescription(data);
+                        }
+                    };
+
+                    // subscribers
+                    self.urls.subscribe(() => {
+                        setTimeout(() => {
+                            const tareas = document.querySelectorAll('.url-description-input');
+                            if (tareas && tareas.length > 0) {
+                                tareas.forEach(tarea => self.onChangeTextarea(null, { currentTarget: tarea }));
+                            }
+                        }, 100);
+                    });
 
                     // computeds
                     self.TemUrls = ko.computed(() => { 
@@ -52,6 +76,16 @@
                     });
 
                     // functions
+                    self.saveURLDescription = (url) => {
+                        if (!url) {
+                            return;
+                        }
+                        
+                        vscode.postMessage({ 
+                            type: ActionTypes.SAVE_URL_DESCRIPTION, 
+                            url: ko.mapping.toJS(url) 
+                        });
+                    };
                     self.toggleTheme = () => {
                         vscode.postMessage({ type: ActionTypes.TOGGLE_THEME });
                     };
@@ -62,7 +96,7 @@
 
                         vscode.postMessage({
                             type: ActionTypes.COPY,
-                            url
+                            url: ko.mapping.toJS(url)
                         });
                     };
                     self.ignore = url => {
@@ -72,7 +106,7 @@
 
                         vscode.postMessage({
                             type: ActionTypes.IGNORE,
-                            url
+                            url: ko.mapping.toJS(url)
                         });
                     };
                     self.restore = url => {
@@ -82,11 +116,23 @@
 
                         vscode.postMessage({
                             type: ActionTypes.RESTORE,
-                            url
+                            url: ko.mapping.toJS(url)
                         });
                     };
                     self.toggleShowIgnore = () => {
                         vscode.postMessage({ type: ActionTypes.TOGGLE_SHOW_IGNORED });
+                    };
+                    self.onChangeTextarea = (data, event) => {
+                        const tarea = event.currentTarget;
+                        const diference = ((tarea.offsetHeight - tarea.scrollHeight) * -1);
+
+                        if (diference > 0) {
+                            tarea.style.height = `${(tarea.offsetHeight + diference)}px`;
+                            tarea.style.minHeight = `${(tarea.offsetHeight + diference)}px`;
+                            tarea.style.maxHeight = `${(tarea.offsetHeight + diference)}px`;
+                        }
+
+                        return true;
                     };
                 };
 
@@ -100,6 +146,13 @@
                     const { type, urls, icons } = event.data;
 
                     switch (type) {
+                        case ActionTypes.START_LOADING:
+                            window.pam.model.isLoading(true);
+                            break;
+
+                        case ActionTypes.STOP_LOADING:
+                            window.pam.model.isLoading(false);
+                            break;
 
                         case ActionTypes.URL:
                             let lastDomain = '';
@@ -108,6 +161,7 @@
                                 url.favicon = ko.observable(url.favicon);
                                 url.show = ko.observable(true);
                                 url.showDomain = ko.observable(lastDomain !== url.host);
+                                url.description = ko.observable(url.description);
                                 lastDomain = url.host;
                                 return url;
                             });

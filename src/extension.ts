@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { EXTENSION_NAME } from './constants';
-import { openCommand, syncCommand } from './commands';
+import { openCommand, syncCommand, clearCache } from './commands';
 import { logger } from './services/logger';
 import { syncURLs, startAutoSync } from './services/urls';
 import { getConfigurations } from './services/configurations';
@@ -18,6 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
 	
 	context.subscriptions.push(openCommand);
 	context.subscriptions.push(syncCommand);
+	context.subscriptions.push(clearCache);
 	context.subscriptions.push(logger.getStatusBarInstance());
 
 	const showIgnored = context.workspaceState.get<boolean>('showIgnored') || false;

@@ -7,17 +7,27 @@
 
     {{STYLES}}
 </head>
-<body>
+<body class="loading" data-bind="css: { 'loading': isLoading } ">
     <main>
         <h1>{{TITLE}}</h1>
         <div id="controls-area">
             <div class="control">
-                <input id="search-input" type="text" data-bind="delayChangeInputCallback: delayChangeInputCallbackOptions" placeholder="Type to search">
+                <input 
+                    id="search-input" 
+                    type="text" 
+                    data-bind="delayChangeInputCallback: delayChangeSearchInputCallbackOptions" 
+                    placeholder="Type to search">
             </div>
             <div class="toggle-ignore-control control">
                 <div class="toggle"></div>
-                <img class="toggle-image" data-bind="attr: { src: icons()['ignore'] }, click: toggleShowIgnore" title="Show Ignored URLs" />
-                <img class="toggle-image" data-bind="attr: { src: icons()['restore'] }, click: toggleShowIgnore" title="Hide Ignored URLs" />
+                <img 
+                    class="toggle-image" 
+                    data-bind="attr: { src: icons()['ignore'] }, click: toggleShowIgnore" 
+                    title="Show Ignored URLs" />
+                <img 
+                    class="toggle-image" 
+                    data-bind="attr: { src: icons()['restore'] }, click: toggleShowIgnore" 
+                    title="Hide Ignored URLs" />
             </div>
             <div class="toggle-theme-control control">
                 <div class="toggle"></div>
@@ -41,16 +51,38 @@
                         onerror="this.style.display='none';this.onerror='';">
                     </div>
                     <div class="url-info">
-                        <a data-bind="text: href, attr: { href: href, title: href }"></a>
+                        <div>
+                            <a class="url-href" data-bind="text: href, attr: { href: href, title: href }"></a>
+                        </div>
+                        <div>
+                            <textarea 
+                                type="text" 
+                                class="url-description-input" 
+                                data-bind="value: description, 
+                                           event: { 'input': $parent.onChangeTextarea }, 
+                                           valueUpdate: 'input', 
+                                           delayChangeInputCallback: $root.delayChangeURLDescriptionInputCallbackOptions" 
+                                placeholder="Click here to add a description" 
+                                rows="1"></textarea>
+                        </div>
                     </div>
                     <div class="url-actions">
-                        <button type="button" class="url-action" data-bind="click: () => { $root.copyToClipboard($data.href) }">
+                        <button 
+                            type="button" 
+                            class="url-action" 
+                            data-bind="click: () => { $root.copyToClipboard($data) }">
                             <img class="url-action-icon" data-bind="attr: { src: $root.icons()['copy-clipboard'] }" />Copy
                         </button>
-                        <button type="button" class="url-action" data-bind="visible: !isIgnored, click: () => { $root.ignore($data.href) }">
+                        <button 
+                            type="button" 
+                            class="url-action" 
+                            data-bind="visible: !isIgnored, click: () => { $root.ignore($data) }">
                             <img class="url-action-icon" data-bind="attr: { src: $root.icons()['ignore'] }" />Ignore
                         </button>
-                        <button type="button" class="url-action" data-bind="visible: isIgnored, click: () => { $root.restore($data.href) }">
+                        <button 
+                            type="button" 
+                            class="url-action" 
+                            data-bind="visible: isIgnored, click: () => { $root.restore($data) }">
                             <img class="url-action-icon" data-bind="attr: { src: $root.icons()['restore'] }" />Restore
                         </button>
                     </div>
@@ -60,5 +92,6 @@
         {{SCRIPTS}}
     </main>
     <a type="button" id="help-button" href="https://github.com/leandrosimoes/project-urls-manager-vscode-extension" target="_blank">Need Help?</a>
+    <a type="button" id="github-button" href="https://github.com/leandrosimoes" target="_blank">Made with ❤ by Leandro Simões</a>
 </body>
 </html>
