@@ -1,65 +1,37 @@
 // eslint-disable-next-line import/no-unresolved
 import * as vscode from 'vscode'
-import { join } from 'path'
-import { existsSync, readFileSync, writeFileSync } from 'fs'
 
-import { CONFIGURATIONS_FILE_NAME } from '../../constants'
 import { logger } from '../logger'
 import { getContext } from '../context'
-import { getAssetsPaths } from '../assets'
 import { IConfigurations } from './interfaces'
 
-const createConfigurationBaseFile = async () => {
+export const getConfigurations = async (): Promise<IConfigurations> => {
     try {
-        const context = getContext()
+        const ignorePaths =
+            vscode.workspace.getConfiguration('projectURLsManager').get<string>('ignorePaths') || ''
 
-        if (!context) {
-            return false
+        const extensionsList =
+            vscode.workspace.getConfiguration('projectURLsManager').get<string>('extensionsList') ||
+            ''
+
+        const configurations: IConfigurations = {
+            ignore: ignorePaths
+                .split(',')
+                .map((i) => i.trim())
+                .filter((i) => !!i),
+            extensions: extensionsList
+                .split(',')
+                .map((i) => i.trim())
+                .filter((i) => !!i),
         }
-
-        const assetsPaths = getAssetsPaths()
-        const configurationsPath = `${vscode.workspace.rootPath}\\${CONFIGURATIONS_FILE_NAME}`
-        const baseConfigurationFilePath = join(assetsPaths.root, 'pam.config.json')
-
-        if (!existsSync(baseConfigurationFilePath)) {
-            return false
-        }
-
-        const baseConfigurationFileContent = readFileSync(baseConfigurationFilePath).toString()
-
-        if (!baseConfigurationFileContent) {
-            return false
-        }
-
-        writeFileSync(configurationsPath, baseConfigurationFileContent)
-
-        return true
-    } catch (error) {
-        logger.log({ message: `Error creating base config file: ${error.message}` })
-        return false
-    }
-}
-
-export const getConfigurations = async (): Promise<IConfigurations | undefined> => {
-    try {
-        const configurationsPath = `${vscode.workspace.rootPath}\\${CONFIGURATIONS_FILE_NAME}`
-
-        if (!existsSync(configurationsPath) && !(await createConfigurationBaseFile())) {
-            return undefined
-        }
-
-        const configurationsFileContent = readFileSync(configurationsPath).toString()
-
-        if (!configurationsFileContent) {
-            return undefined
-        }
-
-        const configurations = JSON.parse(configurationsFileContent) as IConfigurations
 
         return configurations
     } catch (error) {
         logger.log({ message: `Error reading configurations: ${error.message}` })
-        return undefined
+        return {
+            ignore: ['node_modules'],
+            extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        }
     }
 }
 

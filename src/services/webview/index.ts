@@ -4,7 +4,7 @@ import { join, extname } from 'path'
 import { readFileSync, existsSync, readdirSync } from 'fs'
 
 import { getURLs, saveURLDescription, addURLToIgnoreList, restoreURLFromIgnoreList } from '../urls'
-import { EXTENSION_NAME } from '../../constants'
+import { EXTENSION_NAME, EXTENSION_ID } from '../../constants'
 import { getContext } from '../context'
 import { asyncForEach } from '../../utils'
 import { IURL } from '../urls/interfaces'
@@ -241,7 +241,7 @@ export const openWebview = async () => {
         startLoading()
     } else {
         WEBVIEW_PANNEL = vscode.window.createWebviewPanel(
-            'projectUrlManager',
+            EXTENSION_ID,
             EXTENSION_NAME,
             column || vscode.ViewColumn.One,
             {

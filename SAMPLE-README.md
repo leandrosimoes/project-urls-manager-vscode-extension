@@ -1,6 +1,6 @@
 # project-urls-manager README
 
-This is the README for your extension "project-urls-manager". After writing up a brief description, we recommend including the following sections.
+VS Code Extension to manage all urls found in workspace files
 
 ## Features
 

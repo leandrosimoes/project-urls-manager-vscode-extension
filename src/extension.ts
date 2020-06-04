@@ -4,8 +4,7 @@ import * as vscode from 'vscode'
 import { EXTENSION_NAME } from './constants'
 import { openCommand, syncCommand, clearCache } from './services/commands'
 import { logger } from './services/logger'
-import { syncURLs, startAutoSync } from './services/urls'
-import { getConfigurations } from './services/configurations'
+import { syncURLs } from './services/urls'
 import { setContext } from './services/context'
 
 export function activate(context: vscode.ExtensionContext) {
@@ -26,12 +25,6 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Syncing URLS on start
     ;(async () => {
-        const configurations = await getConfigurations()
-
-        if (configurations?.autoSync) {
-            await startAutoSync(shouldShowIgnored)
-        }
-
         await syncURLs(shouldShowIgnored)
     })()
 }

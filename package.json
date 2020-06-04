@@ -14,18 +14,33 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"configuration":{
+			"title": "Project URLs Manager",
+			"properties": {
+				"projectURLsManager.ignorePaths": {
+					"type": "string",
+					"description": "Comma separated paths to be ignored on sync. (node_modules,src/your-file.js)",
+					"default": "node_modules,android,ios,.vscode"
+				},
+				"projectURLsManager.extensionsList": {
+					"type": "string",
+					"description": "Comma separated of valid file extensions to be considered on sync. (.js,.ts,.jsx,.tsx)",
+					"default": ".js,.jsx,.ts,.tsx"
+				}
+			}
+		},
 		"commands": [
 			{
-				"command": "project-urls-manager.open",
-				"title": "PAM: OPEN"
+				"command": "projectURLsManager.open",
+				"title": "Project URLs Manager: OPEN"
 			},
 			{
-				"command": "project-urls-manager.sync",
-				"title": "PAM: SYNC"
+				"command": "projectURLsManager.sync",
+				"title": "Project URLs Manager: SYNC"
 			},
 			{
-				"command": "project-urls-manager.clearCache",
-				"title": "PAM: CLEAR CACHE"
+				"command": "projectURLsManager.clearCache",
+				"title": "Project URLs Manager: CLEAR CACHE"
 			}
 		]
 	},

@@ -11,7 +11,6 @@ import { getConfigurations } from '../configurations'
 import { getContext } from '../context'
 
 let URLS: IURL[] = []
-let AUTO_SYNC_INTERVAL: NodeJS.Timeout
 
 function cleanURL(url: string) {
     return url.replace(/['"()`´,\\{}<>|^]/g, '').trim()
@@ -23,8 +22,7 @@ async function searchForWorkspaceURLs(rootPath = vscode.workspace.rootPath) {
     }
 
     const configurations = await getConfigurations()
-    const ignore = configurations?.ignore || []
-    const extensions = configurations?.extensions || []
+    const { ignore, extensions } = configurations
     const context = getContext()
 
     if (!context) {
@@ -36,16 +34,12 @@ async function searchForWorkspaceURLs(rootPath = vscode.workspace.rootPath) {
         const filePath = `${rootPath}\\${file}`
         const stat = statSync(filePath)
 
+        if (ignore.indexOf(file) > -1) {
+            logger.log({ message: `File ignored: '${file}'` })
+            return
+        }
+
         if (!stat.isDirectory()) {
-            if (file === 'pam.config.json') {
-                return
-            }
-
-            if (ignore.indexOf(file) > -1) {
-                logger.log({ message: `File ignored: '${file}'` })
-                return
-            }
-
             const fileExtension = extname(file)
             if (extensions.length > 0 && extensions.indexOf(fileExtension) === -1) {
                 logger.log({ message: `File extension ignored: '${file}'` })
@@ -70,16 +64,9 @@ async function searchForWorkspaceURLs(rootPath = vscode.workspace.rootPath) {
             } else {
                 logger.log({ message: `No URL found in "${filePath}".` })
             }
-
-            return
+        } else {
+            await searchForWorkspaceURLs(filePath)
         }
-
-        if (ignore.indexOf(file) > -1) {
-            logger.log({ message: `Directory ignored: '${file}'` })
-            return
-        }
-
-        await searchForWorkspaceURLs(filePath)
     })
 
     return URLS
@@ -152,38 +139,6 @@ export const getURLs = async (forceSync = false, showIgnored: boolean): Promise<
     })
 
     return existentURLs.filter((ex) => showIgnored || !ex.isIgnored)
-}
-
-export const startAutoSync = async (showIgnored: boolean) => {
-    try {
-        if (AUTO_SYNC_INTERVAL) {
-            clearInterval(AUTO_SYNC_INTERVAL)
-        }
-
-        logger.log({ message: `Starting auto sync ...` })
-
-        const configurations = await getConfigurations()
-
-        if (configurations?.autoSync) {
-            let { interval = 1 } = configurations.autoSync
-
-            if (interval < 1) {
-                interval = 1
-            }
-
-            const minutes = interval * 60 * 1000
-
-            AUTO_SYNC_INTERVAL = setInterval(() => {
-                ;(async () => {
-                    logger.log({ message: `Auto sync ...` })
-
-                    await syncURLs(showIgnored)
-                })()
-            }, minutes)
-        }
-    } catch (error) {
-        logger.log({ message: `Error starting auto sync: ${error.message}` })
-    }
 }
 
 export const saveURLDescription = async (url: IURL) => {
