@@ -7,42 +7,16 @@ import { getURLs, saveURLDescription, addURLToIgnoreList, restoreURLFromIgnoreLi
 import { EXTENSION_NAME } from '../../constants'
 import { getContext } from '../context'
 import { asyncForEach } from '../../utils'
-import { IURL } from '../../models/url'
+import { IURL } from '../urls/interfaces'
+import { getAssetsPaths, EIcons } from '../assets'
+import { IFavicon } from './interfaces'
+import { EActionTypes, EThemes } from './enums'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pageIcon = require('page-icon')
 
 let HTML = ''
 let WEBVIEW_PANNEL: vscode.WebviewPanel | undefined
-
-interface IIcon {
-    source: string
-    name: string
-    data: Buffer
-    size: number
-    ext: string
-    mime: string
-}
-
-// THIS MUST MATCH THE EActionTypes OBJECT IN script.js
-enum EActionTypes {
-    URL = 'URL',
-    URL_ICON = 'URL_ICON',
-    ICON = 'ICON',
-    COPY = 'COPY',
-    IGNORE = 'IGNORE',
-    RESTORE = 'RESTORE',
-    START_LOADING = 'START_LOADING',
-    STOP_LOADING = 'STOP_LOADING',
-    SAVE_URL_DESCRIPTION = 'SAVE_URL_DESCRIPTION',
-    TOGGLE_THEME = 'TOGGLE_THEME',
-    TOGGLE_SHOW_IGNORED = 'TOGGLE_SHOW_IGNORED',
-}
-
-enum EThemes {
-    DARK = 'dark-theme',
-    LIGHT = 'light-theme',
-}
 
 const startLoading = () => {
     if (!WEBVIEW_PANNEL) {
@@ -67,18 +41,19 @@ const getStylesToInject = async (): Promise<string[] | undefined> => {
         return undefined
     }
 
-    const styles: string[] = []
-    const stylesPath = join(context.extensionPath, 'src', 'assets')
+    const assetsPaths = getAssetsPaths()
 
-    if (!existsSync(stylesPath)) {
+    const styles: string[] = []
+
+    if (!existsSync(assetsPaths.css)) {
         return undefined
     }
 
-    const styleFiles = readdirSync(stylesPath)
+    const styleFiles = readdirSync(assetsPaths.css)
     await asyncForEach(styleFiles, async (file: string) => {
         if (extname(file) === '.css' && WEBVIEW_PANNEL) {
             const filePath = WEBVIEW_PANNEL.webview.asWebviewUri(
-                vscode.Uri.file(join(stylesPath, file))
+                vscode.Uri.file(join(assetsPaths.css, file))
             )
             styles.push(`<link rel="stylesheet" href="${filePath}">`)
         }
@@ -95,19 +70,20 @@ const getScriptsToInject = async (): Promise<string[] | undefined> => {
         return undefined
     }
 
-    const scripts: string[] = []
-    const scriptsPath = join(context.extensionPath, 'src', 'assets')
+    const assetsPaths = getAssetsPaths()
 
-    if (!existsSync(scriptsPath)) {
+    const scripts: string[] = []
+
+    if (!existsSync(assetsPaths.js)) {
         return undefined
     }
 
-    const scriptFiles = readdirSync(scriptsPath)
+    const scriptFiles = readdirSync(assetsPaths.js)
     await asyncForEach(scriptFiles, async (file: string) => {
         if (extname(file) === '.js' && WEBVIEW_PANNEL) {
             const index = order.indexOf(file)
             const filePath = WEBVIEW_PANNEL.webview.asWebviewUri(
-                vscode.Uri.file(join(scriptsPath, file))
+                vscode.Uri.file(join(assetsPaths.js, file))
             )
             const script = `<script src="${filePath}"></script>`
 
@@ -164,7 +140,9 @@ export const getHTML = async (force = false, shouldShowIgnored: boolean) => {
         return HTML
     }
 
-    const htmlFilePath = join(context.extensionPath, 'src', 'assets', 'index.html')
+    const assetsPaths = getAssetsPaths()
+
+    const htmlFilePath = join(assetsPaths.root, 'index.html')
     let htmlFileContent = readFileSync(htmlFilePath).toString()
 
     htmlFileContent = await prepareHTML(htmlFileContent, shouldShowIgnored)
@@ -181,9 +159,10 @@ const sendURLs = async (forceSync: boolean, shouldShowIgnored: boolean) => {
         return
     }
 
+    const assetsPaths = getAssetsPaths()
+
     const urls = await getURLs(forceSync, shouldShowIgnored)
-    const assetsPath = join(context.extensionPath, 'src', 'assets')
-    const fallbackFaviconPath = vscode.Uri.file(join(assetsPath, 'fallback-favicon.png'))
+    const fallbackFaviconPath = vscode.Uri.file(join(assetsPaths.img, 'fallback-favicon.png'))
 
     await asyncForEach(urls, async (url: IURL) => {
         if (!url.hasFavicon && WEBVIEW_PANNEL) {
@@ -211,7 +190,7 @@ const sendFavicons = async () => {
     await asyncForEach(existentURLs, async (url: IURL) => {
         try {
             if (!url.hasFavicon) {
-                const favicon: IIcon = await pageIcon(`${url.protocol}//${url.hostname}`)
+                const favicon: IFavicon = await pageIcon(`${url.protocol}//${url.hostname}`)
                 url.favicon = `data:${favicon.mime};base64, ${favicon.data.toString('base64')}`
                 url.hasFavicon = true
             }
@@ -230,21 +209,17 @@ const sendIcons = async () => {
         return
     }
 
-    const iconsPath = join(context.extensionPath, 'src', 'assets')
-    const icons: any = {}
+    const assetsPaths = getAssetsPaths()
 
-    const copyClipboardIconPath = WEBVIEW_PANNEL.webview.asWebviewUri(
-        vscode.Uri.file(join(iconsPath, 'copy-clipboard.png'))
-    )
-    const ignoreIconPath = WEBVIEW_PANNEL.webview.asWebviewUri(
-        vscode.Uri.file(join(iconsPath, 'ignore.png'))
-    )
-    const restoreIconPath = WEBVIEW_PANNEL.webview.asWebviewUri(
-        vscode.Uri.file(join(iconsPath, 'restore.png'))
-    )
-    icons['copy-clipboard'] = copyClipboardIconPath.toString()
-    icons.ignore = ignoreIconPath.toString()
-    icons.restore = restoreIconPath.toString()
+    const icons: any = {}
+    const files = Object.values(EIcons)
+
+    await asyncForEach(files, async (file: string) => {
+        const fileName = file.split('.')[0]
+        icons[fileName] = WEBVIEW_PANNEL?.webview
+            .asWebviewUri(vscode.Uri.file(join(assetsPaths.img, file)))
+            .toString()
+    })
 
     WEBVIEW_PANNEL.webview.postMessage({ icons, type: EActionTypes.ICON })
 }

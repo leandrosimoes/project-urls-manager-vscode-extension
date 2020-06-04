@@ -1,14 +1,7 @@
-import { parse, Url } from 'url'
+import { parse } from 'url'
+import { IURL } from '../interfaces'
 
-export interface IURL extends Url {
-    baseURL: string
-    favicon: string | undefined
-    isIgnored: boolean
-    hasFavicon: boolean
-    description: string
-}
-
-export class URL {
+export default class URL {
     private _url: IURL
 
     constructor(url: string) {

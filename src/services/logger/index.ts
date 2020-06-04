@@ -2,17 +2,11 @@
 import * as vscode from 'vscode'
 
 import { EXTENSION_NAME } from '../../constants'
-import { ECommands } from '../../commands/commands'
+import { ECommands } from '../commands/enums'
+import { ILogOptions } from './interfaces'
 
 let output: vscode.OutputChannel
 let statusBar: vscode.StatusBarItem
-
-export interface ILogOptions {
-    message: string
-    doNotBreakLine?: boolean
-    clear?: boolean
-    setStatusBarMessage?: boolean
-}
 
 const getStatusBarInstance = () => {
     if (!statusBar) {
@@ -70,4 +64,8 @@ export const logger = {
     },
     getStatusBarInstance,
     getOutputChannelInstance,
+}
+
+export default {
+    logger,
 }

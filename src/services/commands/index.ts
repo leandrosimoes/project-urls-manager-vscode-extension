@@ -1,10 +1,10 @@
 // eslint-disable-next-line import/no-unresolved
 import * as vscode from 'vscode'
 
-import { syncURLs } from '../services/urls'
-import { openWebview } from '../services/views'
-import { getContext } from '../services/context'
-import { ECommands } from './commands'
+import { syncURLs } from '../urls'
+import { openWebview } from '../webview'
+import { getContext } from '../context'
+import { ECommands } from './enums'
 
 export const openCommand = vscode.commands.registerCommand(ECommands.OPEN, () => {
     openWebview()

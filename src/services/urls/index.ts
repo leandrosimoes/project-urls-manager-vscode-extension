@@ -2,7 +2,8 @@
 import * as vscode from 'vscode'
 import { readdirSync, readFileSync, statSync } from 'fs'
 import { extname } from 'path'
-import { URL, IURL } from '../../models/url'
+import { IURL } from './interfaces'
+import URL from './models'
 
 import { asyncForEach } from '../../utils'
 import { logger } from '../logger'

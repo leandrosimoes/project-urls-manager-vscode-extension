@@ -2,7 +2,7 @@
 import * as vscode from 'vscode'
 
 import { EXTENSION_NAME } from './constants'
-import { openCommand, syncCommand, clearCache } from './commands'
+import { openCommand, syncCommand, clearCache } from './services/commands'
 import { logger } from './services/logger'
 import { syncURLs, startAutoSync } from './services/urls'
 import { getConfigurations } from './services/configurations'

@@ -6,16 +6,8 @@ import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { CONFIGURATIONS_FILE_NAME } from '../../constants'
 import { logger } from '../logger'
 import { getContext } from '../context'
-
-interface IAutoSync {
-    interval: number
-}
-
-interface IConfigurations {
-    ignore?: string[]
-    extensions?: string[]
-    autoSync?: IAutoSync
-}
+import { getAssetsPaths } from '../assets'
+import { IConfigurations } from './interfaces'
 
 const createConfigurationBaseFile = async () => {
     try {
@@ -25,13 +17,9 @@ const createConfigurationBaseFile = async () => {
             return false
         }
 
+        const assetsPaths = getAssetsPaths()
         const configurationsPath = `${vscode.workspace.rootPath}\\${CONFIGURATIONS_FILE_NAME}`
-        const baseConfigurationFilePath = join(
-            context.extensionPath,
-            'src',
-            'assets',
-            'pam.config.json'
-        )
+        const baseConfigurationFilePath = join(assetsPaths.root, 'pam.config.json')
 
         if (!existsSync(baseConfigurationFilePath)) {
             return false
