@@ -1,7 +1,7 @@
-import { parse, Url } from 'url';
+import { parse, Url } from 'url'
 
 export interface IURL extends Url {
-    baseURL: string;
+    baseURL: string
     favicon: string | undefined
     isIgnored: boolean
     hasFavicon: boolean
@@ -9,20 +9,22 @@ export interface IURL extends Url {
 }
 
 export class URL {
-    private _url: IURL;
+    private _url: IURL
 
-    constructor(url: string) {        
-        this._url = { 
-            ...parse(url), 
-            baseURL: url, 
-            favicon: undefined, 
-            isIgnored: false, 
+    constructor(url: string) {
+        // eslint-disable-next-line no-underscore-dangle
+        this._url = {
+            ...parse(url),
+            baseURL: url,
+            favicon: undefined,
+            isIgnored: false,
             hasFavicon: false,
-            description: ''
-        };
+            description: '',
+        }
     }
 
     get url(): IURL {
-        return this._url;
+        // eslint-disable-next-line no-underscore-dangle
+        return this._url
     }
 }

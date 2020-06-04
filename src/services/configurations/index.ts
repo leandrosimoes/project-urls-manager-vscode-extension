@@ -1,10 +1,11 @@
-import * as vscode from 'vscode';
-import { join } from 'path';
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+// eslint-disable-next-line import/no-unresolved
+import * as vscode from 'vscode'
+import { join } from 'path'
+import { existsSync, readFileSync, writeFileSync } from 'fs'
 
-import { CONFIGURATIONS_FILE_NAME } from '../../constants';
-import { logger } from '../logger';
-import { getContext } from '../context';
+import { CONFIGURATIONS_FILE_NAME } from '../../constants'
+import { logger } from '../logger'
+import { getContext } from '../context'
 
 interface IAutoSync {
     interval: number
@@ -18,52 +19,60 @@ interface IConfigurations {
 
 const createConfigurationBaseFile = async () => {
     try {
-        const context = getContext();
+        const context = getContext()
 
         if (!context) {
-            return;
+            return false
         }
 
-        const configurationsPath = `${vscode.workspace.rootPath}\\${CONFIGURATIONS_FILE_NAME}`;
-        const baseConfigurationFilePath = join(context.extensionPath, 'src', 'assets', 'pam.config.json');
+        const configurationsPath = `${vscode.workspace.rootPath}\\${CONFIGURATIONS_FILE_NAME}`
+        const baseConfigurationFilePath = join(
+            context.extensionPath,
+            'src',
+            'assets',
+            'pam.config.json'
+        )
 
         if (!existsSync(baseConfigurationFilePath)) {
-            return;
+            return false
         }
 
-        const baseConfigurationFileContent = readFileSync(baseConfigurationFilePath).toString();
+        const baseConfigurationFileContent = readFileSync(baseConfigurationFilePath).toString()
 
         if (!baseConfigurationFileContent) {
-            return;
+            return false
         }
 
-        writeFileSync(configurationsPath, baseConfigurationFileContent);
-        
-        return true;
+        writeFileSync(configurationsPath, baseConfigurationFileContent)
+
+        return true
     } catch (error) {
-        logger.log({ message: `Error creating base config file: ${error.message}` });
-        return false;
+        logger.log({ message: `Error creating base config file: ${error.message}` })
+        return false
     }
-};
+}
 
 export const getConfigurations = async (): Promise<IConfigurations | undefined> => {
     try {
-        const configurationsPath = `${vscode.workspace.rootPath}\\${CONFIGURATIONS_FILE_NAME}`;
+        const configurationsPath = `${vscode.workspace.rootPath}\\${CONFIGURATIONS_FILE_NAME}`
 
         if (!existsSync(configurationsPath) && !(await createConfigurationBaseFile())) {
-            return;
+            return undefined
         }
 
-        const configurationsFileContent = readFileSync(configurationsPath).toString();
+        const configurationsFileContent = readFileSync(configurationsPath).toString()
 
         if (!configurationsFileContent) {
-            return;
+            return undefined
         }
 
-        const configurations = (JSON.parse(configurationsFileContent) as IConfigurations);
-        
-        return configurations;
+        const configurations = JSON.parse(configurationsFileContent) as IConfigurations
+
+        return configurations
     } catch (error) {
-        logger.log({ message: `Error reading configurations: ${error.message}` });
+        logger.log({ message: `Error reading configurations: ${error.message}` })
+        return undefined
     }
-};
+}
+
+export default { getConfigurations, getContext }

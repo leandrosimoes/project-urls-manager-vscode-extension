@@ -1,41 +1,36 @@
-import * as vscode from 'vscode';
+// eslint-disable-next-line import/no-unresolved
+import * as vscode from 'vscode'
 
-import { syncURLs } from '../services/urls';
-import { openWebview } from '../services/views';
-import { getContext } from '../services/context';
+import { syncURLs } from '../services/urls'
+import { openWebview } from '../services/views'
+import { getContext } from '../services/context'
+import { ECommands } from './commands'
 
-export enum Commands {
-	OPEN = 'project-urls-manager.open',
-    SYNC = 'project-urls-manager.sync',
-    CLEAR_CACHE = 'project-urls-manager.clearCache'
-}
+export const openCommand = vscode.commands.registerCommand(ECommands.OPEN, () => {
+    openWebview()
+})
 
-
-export const openCommand = vscode.commands.registerCommand(Commands.OPEN, () => {
-    openWebview();
-});
-
-export const syncCommand = vscode.commands.registerCommand(Commands.SYNC, () => {
-    const context = getContext();
+export const syncCommand = vscode.commands.registerCommand(ECommands.SYNC, () => {
+    const context = getContext()
 
     if (!context) {
-        return;
+        return
     }
 
-    const showIgnored = context.workspaceState.get<boolean>('showIgnored') || false;
+    const shouldShowIgnored = context.workspaceState.get<boolean>('shouldShowIgnored') || false
 
-    syncURLs(showIgnored);
-});
+    syncURLs(shouldShowIgnored)
+})
 
-export const clearCache = vscode.commands.registerCommand(Commands.CLEAR_CACHE, () => {
-    const context = getContext();
+export const clearCache = vscode.commands.registerCommand(ECommands.CLEAR_CACHE, () => {
+    const context = getContext()
 
     if (!context) {
-        return;
+        return
     }
-    const showIgnored = context.workspaceState.get<boolean>('showIgnored') || false;
-    
-    context.workspaceState.update('urls', []);
+    const shouldShowIgnored = context.workspaceState.get<boolean>('shouldShowIgnored') || false
 
-    syncURLs(showIgnored);
-});
+    context.workspaceState.update('urls', [])
+
+    syncURLs(shouldShowIgnored)
+})

@@ -71,6 +71,20 @@ body.loading::after {
   z-index: 99999;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  outline: none;
+  text-decoration: none;
+}
+
+a#help-button,
+a#github-button {
+    margin: 10px 10px 10px 0;
+}
 
 main {
     width: 70%;
@@ -85,6 +99,7 @@ main {
   display: flex;
   flex-wrap: wrap;
   min-width: 300px;
+  margin-top: 15px;
 }
 
 .control {
@@ -200,15 +215,16 @@ html:not(.light-theme) .favicon.default-favicon {
 .url-info {
   flex: 1;
   padding: 5px 15px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
   overflow: hidden;
   min-width: 300px;
 }
 
 .url-info .url-href {
-    font-size: 20px;
+    font-size: 18px;
     color: var(--pam-foreground);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .url-info .url-description-input {
@@ -231,6 +247,7 @@ html:not(.light-theme) .favicon.default-favicon {
     align-items: flex-start;
     justify-content: center;
     align-self: stretch;
+    max-width: 70px;
 }
 
 .favicon {
@@ -240,12 +257,12 @@ html:not(.light-theme) .favicon.default-favicon {
 }
 
 .url-actions {
-    display: flex;
-    flex-direction: row;
-    padding-right: 10px;
-    margin: 5px;
-    align-self: stretch;
-    align-items: flex-start;
+  display: flex;
+  flex-direction: row;
+  margin: 5px 0;
+  align-self: stretch;
+  align-items: flex-start;
+  max-width: 160px;
 }
 
 .url-action {
@@ -310,18 +327,4 @@ html.light-theme .url-action:active {
 }
 ::-webkit-scrollbar-corner {
   background: transparent;
-}
-
-#help-button {
-  position: fixed;
-  bottom: 30px;
-  right: 30px;
-  outline: none;
-}
-
-#github-button {
-  position: fixed;
-  bottom: 30px;
-  left: 30px;
-  outline: none;
 }
