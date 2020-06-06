@@ -1,65 +1,48 @@
 # project-urls-manager README
 
-VS Code Extension to manage all urls found in workspace files
+VS Code Extension to manage all urls found inside the workspace files
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+This is how the Project URLs Manager looks like when open:
 
-For example if there is an image subfolder under your extension project workspace:
+![URLs Manager](docs/manager.png)
 
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+1. Search for URLs on list
+2. Toggle whenever you want to see or not the ignored URLs on the list
+3. Toggle between DARK and LIGHT theme
+4. Copy the URL address to clipboard
+5. Ignore URLs that you don't want to see on the list by default
+6. When ignored URLs are visible, they get a little bit of opacity
+7. Restore ignored URLs so you get them back to the list
+8. Click at the URL address to open on your browser
+9. Add a quick description about the URL
+10. See how many URLs was found on your project and click to open the manager window
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+Manage the extension settings
 
-For example:
+![Settings UI](docs/settings-ui.png)
 
-This extension contributes the following settings:
+1. Comma separated of valid file extensions to be considered on sync. (E.g. `'.js,.css,.html'`)
+2. Comma separated paths to be ignored on sync. (E.g. `'node_modules,src/your-file.js'`)
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+The extension settings on VS Code JSON settings file are:
 
-## Known Issues
+1. `projectURLsManager.extensionsList`
+2. `projectURLsManager.ignorePaths` 
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+## Commands
+
+There's some commands available for the extension too:
+
+![Settings UI](docs/commands.png)
+
+1. After syncing, data is cached like images and descriptions of the URLs. Use this command to force the clean of this cache.
+2. Open the URLs manager window
+3. Search for URLs in all files, respecting the `ignorePaths` and `extensionsList` provided configurations
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+You can see all change log [here](https://github.com/leandrosimoes/project-urls-manager-vscode-extension/blob/master/CHANGELOG.md).

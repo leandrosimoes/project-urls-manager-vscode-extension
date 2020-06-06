@@ -20,12 +20,12 @@
 				"projectURLsManager.ignorePaths": {
 					"type": "string",
 					"description": "Comma separated paths to be ignored on sync. (node_modules,src/your-file.js)",
-					"default": "node_modules,android,ios,.vscode"
+					"default": "node_modules,android,ios,.vscode,.git,.github"
 				},
 				"projectURLsManager.extensionsList": {
 					"type": "string",
-					"description": "Comma separated of valid file extensions to be considered on sync. (.js,.ts,.jsx,.tsx)",
-					"default": ".js,.jsx,.ts,.tsx"
+					"description": "Comma separated of valid file extensions to be considered on sync. (.js,.html,.css)",
+					"default": ".js,.jsx,.ts,.tsx,.html,.css,.xml,.txt,.json,.md"
 				}
 			}
 		},
@@ -50,8 +50,6 @@
 		"compile": "tsc -p ./",
 		"lint": "eslint src --ext ts",
 		"watch": "tsc -watch -p ./",
-		"pretest": "npm-run-all compile copy-assets lint",
-		"test": "node ./out/test/runTest.js",
 		"copy-assets": "ts-node copy-assets.ts",
 		"clean": "rimraf out/*"
 	},

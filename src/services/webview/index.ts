@@ -6,7 +6,7 @@ import { readFileSync, existsSync, readdirSync } from 'fs'
 import { getURLs, saveURLDescription, addURLToIgnoreList, restoreURLFromIgnoreList } from '../urls'
 import { EXTENSION_NAME, EXTENSION_ID } from '../../constants'
 import { getContext } from '../context'
-import { asyncForEach } from '../../utils'
+import { asyncForEach, waitForXSeconds } from '../../utils'
 import { IURL } from '../urls/interfaces'
 import { getAssetsPaths, EIcons } from '../assets'
 import { IFavicon } from './interfaces'
@@ -18,20 +18,24 @@ const pageIcon = require('page-icon')
 let HTML = ''
 let WEBVIEW_PANNEL: vscode.WebviewPanel | undefined
 
-const startLoading = () => {
+const startLoading = async () => {
     if (!WEBVIEW_PANNEL) {
         return
     }
 
     WEBVIEW_PANNEL.webview.postMessage({ type: EActionTypes.START_LOADING })
+
+    await waitForXSeconds(1)
 }
 
-const stopLoading = () => {
+const stopLoading = async () => {
     if (!WEBVIEW_PANNEL) {
         return
     }
 
     WEBVIEW_PANNEL.webview.postMessage({ type: EActionTypes.STOP_LOADING })
+
+    await waitForXSeconds(1)
 }
 
 const getStylesToInject = async (): Promise<string[] | undefined> => {
@@ -238,7 +242,7 @@ export const openWebview = async () => {
 
     if (WEBVIEW_PANNEL) {
         WEBVIEW_PANNEL.reveal(column)
-        startLoading()
+        ;(async () => await startLoading())()
     } else {
         WEBVIEW_PANNEL = vscode.window.createWebviewPanel(
             EXTENSION_ID,
@@ -275,58 +279,48 @@ export const openWebview = async () => {
                     break
 
                 case EActionTypes.IGNORE:
-                    addURLToIgnoreList(url).then(() => {
-                        getHTML(true, shouldShowIgnoredStored).then((html) => {
-                            if (html && WEBVIEW_PANNEL) {
-                                WEBVIEW_PANNEL.webview.html = html
+                    ;(async () => {
+                        await addURLToIgnoreList(url)
+                        const html = await getHTML(true, shouldShowIgnored)
+                        if (html && WEBVIEW_PANNEL) {
+                            WEBVIEW_PANNEL.webview.html = html
+                        }
 
-                                sendIcons().then(() => {
-                                    sendURLs(true, shouldShowIgnoredStored).then(() => {
-                                        sendFavicons().then(() => {
-                                            stopLoading()
-                                        })
-                                    })
-                                })
-                            }
-                        })
-                    })
+                        await sendIcons()
+                        await sendURLs(true, shouldShowIgnored)
+                        await stopLoading()
+                        await sendFavicons()
+                    })()
                     break
 
                 case EActionTypes.RESTORE:
-                    restoreURLFromIgnoreList(url).then(() => {
-                        getHTML(true, shouldShowIgnoredStored).then((html) => {
-                            if (html && WEBVIEW_PANNEL) {
-                                WEBVIEW_PANNEL.webview.html = html
+                    ;(async () => {
+                        await restoreURLFromIgnoreList(url)
+                        const html = await getHTML(true, shouldShowIgnored)
+                        if (html && WEBVIEW_PANNEL) {
+                            WEBVIEW_PANNEL.webview.html = html
+                        }
 
-                                sendIcons().then(() => {
-                                    sendURLs(true, shouldShowIgnoredStored).then(() => {
-                                        sendFavicons().then(() => {
-                                            stopLoading()
-                                        })
-                                    })
-                                })
-                            }
-                        })
-                    })
+                        await sendIcons()
+                        await sendURLs(true, shouldShowIgnored)
+                        await stopLoading()
+                        await sendFavicons()
+                    })()
                     break
 
                 case EActionTypes.SAVE_URL_DESCRIPTION:
-                    saveURLDescription(url).then(() => {
-                        getHTML(true, shouldShowIgnoredStored).then((html) => {
-                            if (html && WEBVIEW_PANNEL) {
-                                WEBVIEW_PANNEL.webview.html = html
+                    ;(async () => {
+                        await saveURLDescription(url)
+                        const html = await getHTML(true, shouldShowIgnored)
+                        if (html && WEBVIEW_PANNEL) {
+                            WEBVIEW_PANNEL.webview.html = html
+                        }
 
-                                sendIcons().then(() => {
-                                    sendURLs(true, shouldShowIgnoredStored).then(() => {
-                                        sendFavicons().then(() => {
-                                            stopLoading()
-                                        })
-                                    })
-                                })
-                            }
-                        })
-                    })
-
+                        await sendIcons()
+                        await sendURLs(true, shouldShowIgnored)
+                        await stopLoading()
+                        await sendFavicons()
+                    })()
                     break
 
                 case EActionTypes.TOGGLE_THEME:
@@ -334,20 +328,17 @@ export const openWebview = async () => {
                         'theme',
                         currentTheme === EThemes.DARK ? EThemes.LIGHT : EThemes.DARK
                     )
-                    getHTML(true, shouldShowIgnoredStored).then((html) => {
+                    ;(async () => {
+                        const html = await getHTML(true, shouldShowIgnored)
                         if (html && WEBVIEW_PANNEL) {
                             WEBVIEW_PANNEL.webview.html = html
-
-                            sendIcons().then(() => {
-                                sendURLs(true, shouldShowIgnoredStored).then(() => {
-                                    sendFavicons().then(() => {
-                                        stopLoading()
-                                    })
-                                })
-                            })
                         }
-                    })
 
+                        await sendIcons()
+                        await sendURLs(true, shouldShowIgnored)
+                        await stopLoading()
+                        await sendFavicons()
+                    })()
                     break
 
                 case EActionTypes.TOGGLE_SHOW_IGNORED:
@@ -355,19 +346,18 @@ export const openWebview = async () => {
                         'shouldShowIgnored',
                         !shouldShowIgnoredStored
                     )
-                    getHTML(true, !shouldShowIgnoredStored).then((html) => {
+                    ;(async () => {
+                        const html = await getHTML(true, !shouldShowIgnoredStored)
+
                         if (html && WEBVIEW_PANNEL) {
                             WEBVIEW_PANNEL.webview.html = html
-
-                            sendIcons().then(() => {
-                                sendURLs(true, !shouldShowIgnoredStored).then(() => {
-                                    sendFavicons().then(() => {
-                                        stopLoading()
-                                    })
-                                })
-                            })
                         }
-                    })
+
+                        await sendIcons()
+                        await sendURLs(true, !shouldShowIgnoredStored)
+                        await stopLoading()
+                        await sendFavicons()
+                    })()
                     break
 
                 default:
@@ -386,6 +376,6 @@ export const openWebview = async () => {
 
     await sendIcons()
     await sendURLs(true, shouldShowIgnored)
+    await stopLoading()
     await sendFavicons()
-    stopLoading()
 }

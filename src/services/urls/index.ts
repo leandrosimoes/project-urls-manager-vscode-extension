@@ -47,7 +47,9 @@ async function searchForWorkspaceURLs(rootPath = vscode.workspace.rootPath) {
             }
 
             const content = readFileSync(filePath).toString()
-            const urlsFound = content.match(/(https?:\/\/[^ ]*)/g)
+            const urlsFound = content.match(
+                /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g
+            )
 
             if (urlsFound && urlsFound.length > 0) {
                 await asyncForEach(urlsFound, (url: string) => {
