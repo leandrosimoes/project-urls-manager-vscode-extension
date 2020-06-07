@@ -3,6 +3,11 @@
 	"displayName": "Project URLs Manager",
 	"description": "Manage all urls of your project in one place",
 	"version": "1.0.0",
+	"icon": "docs/icon-dark-256.png",
+	"galleryBanner": {
+	  "color": "#333333",
+	  "theme": "dark"
+	},
 	"engines": {
 		"vscode": "^1.45.0"
 	},

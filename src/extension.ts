@@ -6,6 +6,7 @@ import { openCommand, syncCommand, clearCache } from './services/commands'
 import { logger } from './services/logger'
 import { syncURLs } from './services/urls'
 import { setContext } from './services/context'
+import { getInstance, openWebview } from './services/webview'
 
 export function activate(context: vscode.ExtensionContext) {
     if (!vscode.workspace.rootPath) {
@@ -21,10 +22,25 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(clearCache)
     context.subscriptions.push(logger.getStatusBarInstance())
 
-    const shouldShowIgnored = context.workspaceState.get<boolean>('shouldShowIgnored') || false
+    const syncCallback = () => {
+        const webviewPannel = getInstance()
+
+        if (webviewPannel) {
+            openWebview(true)
+        } else {
+            const shouldShowIgnored =
+                context.workspaceState.get<boolean>('shouldShowIgnored') || false
+            syncURLs(shouldShowIgnored)
+        }
+    }
+
+    vscode.workspace.onDidChangeConfiguration(syncCallback)
+    vscode.workspace.onDidSaveTextDocument(syncCallback)
+    vscode.workspace.onDidDeleteFiles(syncCallback)
 
     // Syncing URLS on start
     ;(async () => {
+        const shouldShowIgnored = context.workspaceState.get<boolean>('shouldShowIgnored') || false
         await syncURLs(shouldShowIgnored)
     })()
 }

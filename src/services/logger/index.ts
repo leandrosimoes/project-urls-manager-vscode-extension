@@ -30,17 +30,17 @@ export const logger = {
         const opc = getOutputChannelInstance()
         const stb = getStatusBarInstance()
 
-        if (options.clear) {
+        if (options.shouldClear) {
             opc.clear()
         }
 
-        if (options.doNotBreakLine) {
+        if (options.shouldNotBreakLine) {
             opc.append(options.message)
         } else {
             opc.appendLine(options.message)
         }
 
-        if (options.setStatusBarMessage) {
+        if (options.shouldSetStatusBarMessage) {
             stb.text = options.message
             stb.show()
         }

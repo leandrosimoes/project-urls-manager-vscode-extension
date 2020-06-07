@@ -79,7 +79,7 @@ export const syncURLs = async (showIgnored: boolean) => {
         const context = getContext()
 
         if (!context) {
-            logger.log({ message: `0 URL(s) found`, setStatusBarMessage: true })
+            logger.log({ message: `0 URL(s) found`, shouldSetStatusBarMessage: true })
             return
         }
 
@@ -87,8 +87,11 @@ export const syncURLs = async (showIgnored: boolean) => {
 
         let existentURLs: IURL[] = context.workspaceState.get<IURL[]>('urls') || []
 
-        logger.clear()
-        logger.log({ message: 'Syncing Project URLs ...', setStatusBarMessage: true })
+        logger.log({
+            message: 'Syncing Project URLs ...',
+            shouldSetStatusBarMessage: true,
+            shouldClear: true,
+        })
 
         URLS = (await searchForWorkspaceURLs(undefined)) || []
 
@@ -114,7 +117,7 @@ export const syncURLs = async (showIgnored: boolean) => {
             message: `${
                 existentURLs.filter((ex) => showIgnored || !ex.isIgnored).length
             } URL(s) found`,
-            setStatusBarMessage: true,
+            shouldSetStatusBarMessage: true,
         })
     } catch (error) {
         logger.log({ message: error.message })

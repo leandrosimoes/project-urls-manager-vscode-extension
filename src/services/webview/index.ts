@@ -18,6 +18,8 @@ const pageIcon = require('page-icon')
 let HTML = ''
 let WEBVIEW_PANNEL: vscode.WebviewPanel | undefined
 
+export const getInstance = () => WEBVIEW_PANNEL
+
 const startLoading = async () => {
     if (!WEBVIEW_PANNEL) {
         return
@@ -228,7 +230,7 @@ const sendIcons = async () => {
     WEBVIEW_PANNEL.webview.postMessage({ icons, type: EActionTypes.ICON })
 }
 
-export const openWebview = async () => {
+export const openWebview = async (ignoreFocus?: boolean) => {
     const context = getContext()
 
     if (!context) {
@@ -241,8 +243,10 @@ export const openWebview = async () => {
         : undefined
 
     if (WEBVIEW_PANNEL) {
-        WEBVIEW_PANNEL.reveal(column)
-        ;(async () => await startLoading())()
+        if (!ignoreFocus) {
+            WEBVIEW_PANNEL.reveal(column)
+            ;(async () => await startLoading())()
+        }
     } else {
         WEBVIEW_PANNEL = vscode.window.createWebviewPanel(
             EXTENSION_ID,
@@ -274,6 +278,7 @@ export const openWebview = async () => {
                 case EActionTypes.COPY:
                     if (url.href) {
                         vscode.env.clipboard.writeText(url.href)
+                        vscode.window.showInformationMessage(`'${url.href}' copied to clipboard`)
                     }
 
                     break
