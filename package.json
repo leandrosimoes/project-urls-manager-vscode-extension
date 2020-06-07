@@ -3,7 +3,8 @@
 	"displayName": "Project URLs Manager",
 	"description": "Manage all urls of your project in one place",
 	"version": "1.0.0",
-	"icon": "docs/icon-dark-256.png",
+	"icon": "https://raw.githubusercontent.com/leandrosimoes/project-urls-manager-vscode-extension/master/docs/icon-dark-256.png?token=ABGU5CSJVZZS6NNTKOFV5L263VIWY",
+	"publisher": "Leandro Simões da Silva",
 	"galleryBanner": {
 	  "color": "#333333",
 	  "theme": "dark"

@@ -1,4 +1,4 @@
-![URLs Manager](docs/icon-dark-128.png)
+![URLs Manager](https://raw.githubusercontent.com/leandrosimoes/project-urls-manager-vscode-extension/master/docs/icon-dark-128.png?token=ABGU5CWZ42F7VRU5PUP4I5S63VIQ2)
 
 # Project URLs Manager
 
@@ -8,7 +8,7 @@ VS Code Extension to manage all urls found inside the workspace files
 
 This is how the Project URLs Manager looks like when open:
 
-![URLs Manager](docs/manager.png)
+![URLs Manager](https://raw.githubusercontent.com/leandrosimoes/project-urls-manager-vscode-extension/master/docs/manager.png?token=ABGU5CV2XAVAHAY34N7FDB263VISW)
 
 1. Search for URLs on list
 2. Toggle whenever you want to see or not the ignored URLs on the list
@@ -25,7 +25,7 @@ This is how the Project URLs Manager looks like when open:
 
 Manage the extension settings
 
-![Settings UI](docs/settings-ui.png)
+![Settings UI](https://raw.githubusercontent.com/leandrosimoes/project-urls-manager-vscode-extension/master/docs/settings-ui.png?token=ABGU5CR5NL3ESQDVYCQEUSS63VIT2)
 
 1. Comma separated of valid file extensions to be considered on sync. (E.g. `'.js,.css,.html'`)
 2. Comma separated paths to be ignored on sync. (E.g. `'node_modules,src/your-file.js'`)
@@ -39,7 +39,7 @@ The extension settings on VS Code JSON settings file are:
 
 There's some commands available for the extension too:
 
-![Settings UI](docs/commands.png)
+![Settings UI](https://raw.githubusercontent.com/leandrosimoes/project-urls-manager-vscode-extension/master/docs/commands.png?token=ABGU5CUTLMFYSAUNLBGTGRC63VIU4)
 
 1. After syncing, data is cached like images and descriptions of the URLs. Use this command to force the clean of this cache.
 2. Open the URLs manager window
