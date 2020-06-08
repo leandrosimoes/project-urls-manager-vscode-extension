@@ -351,3 +351,4 @@ MigrationBackup/
 
 # my stuff
 out/
+*.vsix
