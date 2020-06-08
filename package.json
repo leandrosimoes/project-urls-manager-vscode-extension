@@ -3,8 +3,8 @@
 	"displayName": "Project URLs Manager",
 	"description": "Manage all urls of your project in one place",
 	"version": "1.0.0",
-	"icon": "https://raw.githubusercontent.com/leandrosimoes/project-urls-manager-vscode-extension/master/docs/icon-dark-256.png?token=ABGU5CSJVZZS6NNTKOFV5L263VIWY",
-	"publisher": "Leandro Simões da Silva",
+	"icon": "docs/icon-dark-256.png",
+	"publisher": "Leandro",
 	"galleryBanner": {
 	  "color": "#333333",
 	  "theme": "dark"
@@ -52,7 +52,8 @@
 	},
 	"scripts": {
 		"dev": "npm-run-all clean compile copy-assets watch",
-		"vscode:prepublish": "npm run compile",
+		"prod": "npm-run-all clean lint compile copy-assets",
+		"vscode:prepublish": "npm run prod",
 		"compile": "tsc -p ./",
 		"lint": "eslint src --ext ts",
 		"watch": "tsc -watch -p ./",
@@ -84,5 +85,15 @@
 	},
 	"dependencies": {
 		"page-icon": "^0.3.0"
-	}
+	},
+	"license": "SEE LICENSE IN LICENSE.txt",
+	"bugs": {
+	  "url": "https://github.com/leandrosimoes/project-urls-manager-vscode-extension/issues",
+	  "email": "smcbreen@microsoft.com"
+	},
+	"repository": {
+	  "type": "git",
+	  "url": "https://github.com/leandrosimoes/project-urls-manager-vscode-extension.git"
+	},
+	"homepage": "https://github.com/leandrosimoes/project-urls-manager-vscode-extension/blob/master/README.md"
 }

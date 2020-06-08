@@ -17,61 +17,66 @@ function cleanURL(url: string) {
 }
 
 async function searchForWorkspaceURLs(rootPath = vscode.workspace.rootPath) {
-    if (!rootPath) {
-        return undefined
-    }
-
-    const configurations = await getConfigurations()
-    const { ignore, extensions } = configurations
-    const context = getContext()
-
-    if (!context) {
-        return undefined
-    }
-
-    const files = readdirSync(rootPath)
-    await asyncForEach(files, async (file: string) => {
-        const filePath = `${rootPath}\\${file}`
-        const stat = statSync(filePath)
-
-        if (ignore.indexOf(file) > -1) {
-            logger.log({ message: `File ignored: '${file}'` })
-            return
+    try {
+        if (!rootPath) {
+            return undefined
         }
 
-        if (!stat.isDirectory()) {
-            const fileExtension = extname(file)
-            if (extensions.length > 0 && extensions.indexOf(fileExtension) === -1) {
-                logger.log({ message: `File extension ignored: '${file}'` })
+        const configurations = await getConfigurations()
+        const { ignore, extensions } = configurations
+        const context = getContext()
+
+        if (!context) {
+            return undefined
+        }
+
+        const files = readdirSync(rootPath)
+        await asyncForEach(files, async (file: string) => {
+            const filePath = `${rootPath}\\${file}`
+            const stat = statSync(filePath)
+
+            if (ignore.indexOf(file) > -1) {
+                logger.log({ message: `File ignored: '${file}'` })
                 return
             }
 
-            const content = readFileSync(filePath).toString()
-            const urlsFound = content.match(
-                /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g
-            )
+            if (!stat.isDirectory()) {
+                const fileExtension = extname(file)
+                if (extensions.length > 0 && extensions.indexOf(fileExtension) === -1) {
+                    logger.log({ message: `File extension ignored: '${file}'` })
+                    return
+                }
 
-            if (urlsFound && urlsFound.length > 0) {
-                await asyncForEach(urlsFound, (url: string) => {
-                    const href = cleanURL(url)
-                    const urlInstance = new URL(href).url
-                    urlInstance.hasFavicon = false
+                const content = readFileSync(filePath).toString()
+                const urlsFound = content.match(
+                    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g
+                )
 
-                    if (urlInstance && urlInstance.host) {
-                        URLS.push(urlInstance)
-                    }
-                })
+                if (urlsFound && urlsFound.length > 0) {
+                    await asyncForEach(urlsFound, (url: string) => {
+                        const href = cleanURL(url)
+                        const urlInstance = new URL(href).url
+                        urlInstance.hasFavicon = false
 
-                logger.log({ message: `${urlsFound.length} URL(s) found in "${filePath}".` })
+                        if (urlInstance && urlInstance.host) {
+                            URLS.push(urlInstance)
+                        }
+                    })
+
+                    logger.log({ message: `${urlsFound.length} URL(s) found in "${filePath}".` })
+                } else {
+                    logger.log({ message: `No URL found in "${filePath}".` })
+                }
             } else {
-                logger.log({ message: `No URL found in "${filePath}".` })
+                await searchForWorkspaceURLs(filePath)
             }
-        } else {
-            await searchForWorkspaceURLs(filePath)
-        }
-    })
+        })
 
-    return URLS
+        return URLS
+    } catch (error) {
+        logger.log({ message: `searchForWorkspaceURLs ERROR: ${error.message}` })
+        return URLS
+    }
 }
 
 export const syncURLs = async (showIgnored: boolean) => {
@@ -120,7 +125,7 @@ export const syncURLs = async (showIgnored: boolean) => {
             shouldSetStatusBarMessage: true,
         })
     } catch (error) {
-        logger.log({ message: error.message })
+        logger.log({ message: `syncURLs ERROR: ${error.message}` })
     }
 }
 
@@ -135,15 +140,20 @@ export const getURLs = async (forceSync = false, showIgnored: boolean): Promise<
         await syncURLs(showIgnored)
     }
 
-    const existentURLs = (context.workspaceState.get<IURL[]>('urls') || []).sort((a, b) => {
-        if (!a.host || !b.host) {
-            return 1
-        }
+    try {
+        const existentURLs = (context.workspaceState.get<IURL[]>('urls') || []).sort((a, b) => {
+            if (!a.host || !b.host) {
+                return 1
+            }
 
-        return a.host >= b.host ? 1 : -1
-    })
+            return a.host >= b.host ? 1 : -1
+        })
 
-    return existentURLs.filter((ex) => showIgnored || !ex.isIgnored)
+        return existentURLs.filter((ex) => showIgnored || !ex.isIgnored)
+    } catch (error) {
+        logger.log({ message: `getURLs ERROR: ${error.message}` })
+        return []
+    }
 }
 
 export const saveURLDescription = async (url: IURL) => {
@@ -153,19 +163,23 @@ export const saveURLDescription = async (url: IURL) => {
         return
     }
 
-    const urlsFound: IURL[] = context.workspaceState.get<IURL[]>('urls') || []
+    try {
+        const urlsFound: IURL[] = context.workspaceState.get<IURL[]>('urls') || []
 
-    if (urlsFound.length <= 0) {
-        return
-    }
-
-    await asyncForEach(urlsFound, async (found: IURL) => {
-        if (found.href === url.href) {
-            found.description = url.description
+        if (urlsFound.length <= 0) {
+            return
         }
-    })
 
-    context.workspaceState.update('urls', urlsFound)
+        await asyncForEach(urlsFound, async (found: IURL) => {
+            if (found.href === url.href) {
+                found.description = url.description
+            }
+        })
+
+        context.workspaceState.update('urls', urlsFound)
+    } catch (error) {
+        logger.log({ message: `saveURLDescription ERROR: ${error.message}` })
+    }
 }
 
 export const restoreURLFromIgnoreList = async (url: IURL) => {
@@ -175,15 +189,19 @@ export const restoreURLFromIgnoreList = async (url: IURL) => {
         return
     }
 
-    const existentURLs: IURL[] = context.workspaceState.get<IURL[]>('urls') || []
+    try {
+        const existentURLs: IURL[] = context.workspaceState.get<IURL[]>('urls') || []
 
-    await asyncForEach(existentURLs, async (existent: IURL) => {
-        if (existent.href === url.href) {
-            existent.isIgnored = false
-        }
-    })
+        await asyncForEach(existentURLs, async (existent: IURL) => {
+            if (existent.href === url.href) {
+                existent.isIgnored = false
+            }
+        })
 
-    context.workspaceState.update('urls', existentURLs)
+        context.workspaceState.update('urls', existentURLs)
+    } catch (error) {
+        logger.log({ message: `restoreURLFromIgnoreList ERROR: ${error.message}` })
+    }
 }
 
 export const addURLToIgnoreList = async (url: IURL) => {
@@ -193,13 +211,17 @@ export const addURLToIgnoreList = async (url: IURL) => {
         return
     }
 
-    const existentURLs: IURL[] = context.workspaceState.get<IURL[]>('urls') || []
+    try {
+        const existentURLs: IURL[] = context.workspaceState.get<IURL[]>('urls') || []
 
-    await asyncForEach(existentURLs, async (existent: IURL) => {
-        if (existent.href === url.href) {
-            existent.isIgnored = true
-        }
-    })
+        await asyncForEach(existentURLs, async (existent: IURL) => {
+            if (existent.href === url.href) {
+                existent.isIgnored = true
+            }
+        })
 
-    context.workspaceState.update('urls', existentURLs)
+        context.workspaceState.update('urls', existentURLs)
+    } catch (error) {
+        logger.log({ message: `addURLToIgnoreList ERROR: ${error.message}` })
+    }
 }

@@ -6,6 +6,11 @@ import { getContext } from '../context'
 import { IConfigurations } from './interfaces'
 
 export const getConfigurations = async (): Promise<IConfigurations> => {
+    const defaultResult = {
+        ignore: ['node_modules,android,ios,.vscode,.git,.github'],
+        extensions: ['.js', '.jsx', '.ts', '.tsx', '.html', '.css', '.xml', '.txt', '.json', '.md'],
+    }
+
     try {
         const ignorePaths =
             vscode.workspace.getConfiguration('projectURLsManager').get<string>('ignorePaths') || ''
@@ -28,10 +33,10 @@ export const getConfigurations = async (): Promise<IConfigurations> => {
         return configurations
     } catch (error) {
         logger.log({ message: `Error reading configurations: ${error.message}` })
-        return {
-            ignore: ['node_modules'],
-            extensions: ['.js', '.jsx', '.ts', '.tsx'],
-        }
+        logger.log({
+            message: `Using this default settings: ${JSON.stringify(defaultResult, null, 2)}`,
+        })
+        return defaultResult
     }
 }
 
