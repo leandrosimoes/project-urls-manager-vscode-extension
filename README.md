@@ -1,4 +1,4 @@
-![URLs Manager](https://raw.githubusercontent.com/leandrosimoes/project-urls-manager-vscode-extension/master/docs/icon-dark-128.png)
+![URLs Manager](https://raw.githubusercontent.com/leandrosimoes/project-urls-manager-vscode-extension/master/docs/icon-128.png)
 
 # Project URLs Manager
 
