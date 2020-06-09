@@ -3,7 +3,7 @@
 	"displayName": "Project URLs Manager",
 	"description": "Manage all urls of your project in one place",
 	"version": "1.0.0",
-	"icon": "docs/icon-dark-256.png",
+	"icon": "docs/icon-256.png",
 	"publisher": "Leandro",
 	"galleryBanner": {
 	  "color": "#333333",
