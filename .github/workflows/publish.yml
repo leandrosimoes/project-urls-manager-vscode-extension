@@ -1,7 +1,8 @@
 name: Build And Deploy 🧬🚀
 on:
-  release:
-    types: [prereleased]
+  push:
+    branches:
+      - master
 
 jobs:
  
