@@ -1,0 +1,49 @@
+name: Build And Deploy 🧬🚀
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+ 
+  build:
+    runs-on: ubuntu-latest
+
+    steps:  
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '13.x'
+
+      - name: Install VSCE
+        run: npm i -g vsce
+        shell: bash
+
+      - name: Setup Git User
+        run: git config --global user.email "leandro.simoes@outlook.com" && git config --global user.name "Leandro Simões"
+        shell: bash
+
+      - name: Create Projects Folder
+        run: mkdir Projects
+        shell: bash
+
+      - name: Clone Project 
+        working-directory: Projects
+        run: git clone https://${{ secrets.AUTH_TOKEN }}:x-oauth-basic@github.com/leandrosimoes/project-urls-manager-vscode-extension.git  --progress --single-branch --branch master
+        shell: bash
+
+      - name: Install Packages
+        working-directory: Projects\project-urls-manager-vscode-extension
+        run: npm i
+        shell: bash
+
+      - name: Package Extension
+        working-directory: Projects\project-urls-manager-vscode-extension
+        run: vsce package
+        shell: bash
+
+      - name: Publish Extension
+        working-directory: Projects\project-urls-manager-vscode-extension
+        run: vsce publish -p ${{ secrets.VSCE_TOKEN }}
+        shell: bash
