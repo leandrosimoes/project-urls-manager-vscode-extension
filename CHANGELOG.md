@@ -11,12 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.0]
 ### Features
 - New configuration to add domains that you want to ignore
-- New action icon to star URLs so you can see them at the top of list
-- New TreeView on the VS Code Activity bar so you can easly see your URLs list with no need to open the manager
+- New action icon to star URLs so you can see them at the top of the list
+- New TreeView on the VS Code Activity bar so you can easily see your URLs list with no need to open the manager
 
 ### Changes
 - URLs action buttons on the WebView are now just icons to a better look
-- Icons on the WebView now are from the VS Code official api
+- Icons on the WebView now are from the VS Code official API
 
 ### Fixes
 - Fixed ignored URLs visibility toggle state
