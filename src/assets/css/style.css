@@ -259,23 +259,14 @@ html:not(.light-theme) .favicon.default-favicon {
   margin: 5px 0;
   align-self: stretch;
   align-items: flex-start;
-  max-width: 240px;
 }
 
-.url-action {
-    padding: 5px 10px;
-    border-radius: 3px;
-    background-color: var(--pam-action-background);
-    font-size: 12px;
-    box-shadow: 0 2px 1px var(--pam-box-shadow-color);
-    border: 1px solid var(--pam-border-color);
-    cursor: pointer;
-    outline: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0 3px;
+.url-actions i::before {
+  font-size: 25px;
+  margin: 0 5px;
+  cursor: pointer;
 }
+
 
 html:not(.light-theme) .url-action:active {
     box-shadow: 0 0 3px #000 inset;

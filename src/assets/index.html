@@ -62,36 +62,11 @@
                             </div>
                         </div>
                         <div class="url-actions">
-                            <button 
-                                type="button" 
-                                class="url-action" 
-                                data-bind="click: () => { $root.copyToClipboard($data) }">
-                                <i class="codicon codicon-clippy"></i>&nbsp;Copy
-                            </button>
-                            <button 
-                                type="button" 
-                                class="url-action" 
-                                data-bind="visible: !isIgnored, click: () => { $root.ignore($data) }">
-                                <i class="codicon codicon-eye-closed"></i>&nbsp;Ignore
-                            </button>
-                            <button 
-                                type="button" 
-                                class="url-action" 
-                                data-bind="visible: isIgnored, click: () => { $root.restore($data) }">
-                                <i class="codicon codicon-eye"></i>&nbsp;Restore
-                            </button>
-                            <button 
-                                type="button" 
-                                class="url-action" 
-                                data-bind="visible: !isStarred, click: () => { $root.star($data) }">
-                                <i class="codicon codicon-star-full"></i>&nbsp;Star
-                            </button>
-                            <button 
-                                type="button" 
-                                class="url-action" 
-                                data-bind="visible: isStarred, click: () => { $root.unstar($data) }">
-                                <i class="codicon codicon-star-empty"></i>&nbsp;Unstar
-                            </button>
+                            <i class="codicon codicon-clippy" data-bind="click: () => { $root.copyToClipboard($data) }" title="Copy to Clipboard"></i>
+                            <i class="codicon codicon-eye-closed" data-bind="visible: !isIgnored, click: () => { $root.ignore($data) }" title="Ignore URL"></i>
+                            <i class="codicon codicon-eye" data-bind="visible: isIgnored, click: () => { $root.restore($data) }" title="Restore URL"></i>
+                            <i class="codicon codicon-star-empty" data-bind="visible: !isStarred, click: () => { $root.star($data) }" title="Star URL"></i>
+                            <i class="codicon codicon-star-full" data-bind="visible: isStarred, click: () => { $root.unstar($data) }" title="Unstar URL"></i>
                         </div>
                     </div>
                 </div>
