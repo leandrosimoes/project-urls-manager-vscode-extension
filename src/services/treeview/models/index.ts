@@ -43,11 +43,11 @@ export class ProjectURLsTreeViewDataProvider
 
     private _mapURLItems(urls: IURL[], host?: string): ProjectURLsTreeItem[] {
         switch (this._type) {
-            case EURLTreeItemType.STARED:
-                urls = urls.filter((url) => url.isStared && !url.isIgnored)
+            case EURLTreeItemType.STARRED:
+                urls = urls.filter((url) => url.isStarred && !url.isIgnored)
                 break
             case EURLTreeItemType.NORMAL:
-                urls = urls.filter((url) => !url.isStared && !url.isIgnored)
+                urls = urls.filter((url) => !url.isStarred && !url.isIgnored)
                 break
             case EURLTreeItemType.IGNORED:
                 urls = urls.filter((url) => url.isIgnored)
@@ -110,9 +110,9 @@ export class ProjectURLsTreeView {
         let treeDataProvider: ProjectURLsTreeViewDataProvider | undefined
 
         switch (this._type) {
-            case EProjectURLsTreeViewType.STARED:
+            case EProjectURLsTreeViewType.STARRED:
                 treeDataProvider = new ProjectURLsTreeViewDataProvider(
-                    EURLTreeItemType.STARED,
+                    EURLTreeItemType.STARRED,
                     urls
                 )
                 break

@@ -1,11 +1,11 @@
 export enum EURLTreeItemType {
-    STARED = 'STARED',
+    STARRED = 'STARRED',
     NORMAL = 'NORMAL',
     IGNORED = 'IGNORED',
 }
 
 export enum EProjectURLsTreeViewType {
-    STARED = 'staredList',
+    STARRED = 'starredList',
     NORMAL = 'normalList',
     IGNORED = 'ignoredList',
 }

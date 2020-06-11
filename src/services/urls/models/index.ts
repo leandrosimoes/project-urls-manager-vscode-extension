@@ -13,7 +13,7 @@ export default class URL {
             isIgnored: false,
             hasFavicon: false,
             description: '',
-            isStared: false,
+            isStarred: false,
         }
     }
 

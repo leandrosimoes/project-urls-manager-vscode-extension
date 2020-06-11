@@ -3,12 +3,6 @@ import { getContext } from '../context'
 import { IAssetsPaths } from './interfaces'
 import { logger } from '../logger'
 
-export enum EIcons {
-    COPY_CLIPBOARD = 'copy-clipboard.png',
-    IGNORE = 'ignore.png',
-    RESTORE = 'restore.png',
-}
-
 export const getAssetsPaths = (): IAssetsPaths => {
     const defaultResult: IAssetsPaths = {
         root: '',

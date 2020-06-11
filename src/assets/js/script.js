@@ -11,6 +11,8 @@ document.addEventListener('readystatechange', () => {
         SAVE_URL_DESCRIPTION: 'SAVE_URL_DESCRIPTION',
         TOGGLE_THEME: 'TOGGLE_THEME',
         TOGGLE_SHOW_IGNORED: 'TOGGLE_SHOW_IGNORED',
+        STAR: 'STAR',
+        UNSTAR: 'UNSTAR',
     }
 
     function pamViewModel() {
@@ -19,7 +21,6 @@ document.addEventListener('readystatechange', () => {
         // observables
         this.isLoading = ko.observable(true)
         this.urls = ko.observable([])
-        this.icons = ko.observable([])
         this.searchText = ko.observable('')
         this.delayChangeSearchInputCallbackOptions = {
             delay: 1000, // miliseconds
@@ -103,6 +104,26 @@ document.addEventListener('readystatechange', () => {
                 url: ko.mapping.toJS(url),
             })
         }
+        this.star = (url) => {
+            if (!url) {
+                return
+            }
+
+            vscode.postMessage({
+                type: ActionTypes.STAR,
+                url: ko.mapping.toJS(url),
+            })
+        }
+        this.unstar = (url) => {
+            if (!url) {
+                return
+            }
+
+            vscode.postMessage({
+                type: ActionTypes.UNSTAR,
+                url: ko.mapping.toJS(url),
+            })
+        }
         this.toggleShowIgnore = () => {
             vscode.postMessage({
                 type: ActionTypes.TOGGLE_SHOW_IGNORED,
@@ -144,7 +165,7 @@ document.addEventListener('readystatechange', () => {
         ko.applyBindings(window.pam.model)
 
         window.addEventListener('message', (event) => {
-            const { type, urls, icons } = event.data
+            const { type, urls } = event.data
             let lastDomain = ''
 
             switch (type) {
@@ -166,6 +187,7 @@ document.addEventListener('readystatechange', () => {
                             url.show = ko.observable(true)
                             url.showDomain = ko.observable(lastDomain !== url.host)
                             url.description = ko.observable(url.description)
+                            url.isStarred = !!url.isStarred
                             lastDomain = url.host
                             return url
                         })
@@ -183,10 +205,6 @@ document.addEventListener('readystatechange', () => {
                         }
                     })
 
-                    break
-
-                case ActionTypes.ICON:
-                    window.pam.model.icons(icons)
                     break
 
                 default:

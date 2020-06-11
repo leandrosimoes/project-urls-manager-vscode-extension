@@ -65,8 +65,8 @@
 		"views": {
 		  "urlList": [
 			{
-			  "id": "staredList",
-			  "name": "Stared"
+			  "id": "starredList",
+			  "name": "Starred"
 			},
 			{
 			  "id": "normalList",

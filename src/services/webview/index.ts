@@ -3,12 +3,19 @@ import * as vscode from 'vscode'
 import { join, extname } from 'path'
 import { readFileSync, existsSync, readdirSync } from 'fs'
 
-import { getURLs, saveURLDescription, addURLToIgnoreList, restoreURLFromIgnoreList } from '../urls'
+import {
+    getURLs,
+    saveURLDescription,
+    addURLToIgnoreList,
+    restoreURLFromIgnoreList,
+    addURLToStarredList,
+    restoreURLFromStarredList,
+} from '../urls'
 import { EXTENSION_NAME, EXTENSION_ID } from '../../constants'
 import { getContext } from '../context'
 import { asyncForEach, waitForXSeconds } from '../../utils'
 import { IURL } from '../urls/interfaces'
-import { getAssetsPaths, EIcons } from '../assets'
+import { getAssetsPaths } from '../assets'
 import { IFavicon } from './interfaces'
 import { EActionTypes, EThemes } from './enums'
 import { logger } from '../logger'
@@ -27,7 +34,7 @@ const startLoading = async () => {
         return
     }
 
-    logger.log({ message: 'Start Loading ...', shouldSetStatusBarMessage: true })
+    logger.log({ message: `0 $(sync~spin)`, shouldSetStatusBarMessage: true })
 
     WEBVIEW_PANNEL.webview.postMessage({ type: EActionTypes.START_LOADING })
 
@@ -254,37 +261,9 @@ const sendFavicons = async () => {
     }
 }
 
-const sendIcons = async () => {
-    try {
-        const context = getContext()
-
-        if (!WEBVIEW_PANNEL || !context) {
-            return
-        }
-
-        logger.log({ message: 'Sending Icons to WebView ...' })
-
-        const assetsPaths = getAssetsPaths()
-
-        const icons: any = {}
-        const files = Object.values(EIcons)
-
-        await asyncForEach(files, async (file: string) => {
-            const fileName = file.split('.')[0]
-            icons[fileName] = WEBVIEW_PANNEL?.webview
-                .asWebviewUri(vscode.Uri.file(join(assetsPaths.img, file)))
-                .toString()
-        })
-
-        WEBVIEW_PANNEL.webview.postMessage({ icons, type: EActionTypes.ICON })
-    } catch (error) {
-        logger.log({ message: `sendIcons ERROR: ${error.message}` })
-    }
-}
-
 const updateTreeviews = async () => {
     const treeviews = await getTreeViews()
-    treeviews.STARED_TREEVIEW.updateTreviewData()
+    treeviews.STARRED_TREEVIEW.updateTreviewData()
     treeviews.NORMAL_TREEVIEW.updateTreviewData()
     treeviews.IGNORED_TREEVIEW.updateTreviewData()
 }
@@ -342,6 +321,36 @@ export const openWebview = async (ignoreFocus?: boolean) => {
 
                     break
 
+                case EActionTypes.STAR:
+                    ;(async () => {
+                        await addURLToStarredList(url)
+                        const html = await getHTML(true, shouldShowIgnoredStored)
+                        if (html && WEBVIEW_PANNEL) {
+                            WEBVIEW_PANNEL.webview.html = html
+                        }
+
+                        await sendURLs(true, shouldShowIgnoredStored)
+                        await stopLoading()
+                        await updateTreeviews()
+                        await sendFavicons()
+                    })()
+                    break
+
+                case EActionTypes.UNSTAR:
+                    ;(async () => {
+                        await restoreURLFromStarredList(url)
+                        const html = await getHTML(true, shouldShowIgnoredStored)
+                        if (html && WEBVIEW_PANNEL) {
+                            WEBVIEW_PANNEL.webview.html = html
+                        }
+
+                        await sendURLs(true, shouldShowIgnoredStored)
+                        await stopLoading()
+                        await updateTreeviews()
+                        await sendFavicons()
+                    })()
+                    break
+
                 case EActionTypes.IGNORE:
                     ;(async () => {
                         await addURLToIgnoreList(url)
@@ -350,7 +359,6 @@ export const openWebview = async (ignoreFocus?: boolean) => {
                             WEBVIEW_PANNEL.webview.html = html
                         }
 
-                        await sendIcons()
                         await sendURLs(true, shouldShowIgnoredStored)
                         await stopLoading()
                         await updateTreeviews()
@@ -366,7 +374,6 @@ export const openWebview = async (ignoreFocus?: boolean) => {
                             WEBVIEW_PANNEL.webview.html = html
                         }
 
-                        await sendIcons()
                         await sendURLs(true, shouldShowIgnoredStored)
                         await stopLoading()
                         await updateTreeviews()
@@ -382,7 +389,6 @@ export const openWebview = async (ignoreFocus?: boolean) => {
                             WEBVIEW_PANNEL.webview.html = html
                         }
 
-                        await sendIcons()
                         await sendURLs(true, shouldShowIgnoredStored)
                         await stopLoading()
                         await sendFavicons()
@@ -400,7 +406,6 @@ export const openWebview = async (ignoreFocus?: boolean) => {
                             WEBVIEW_PANNEL.webview.html = html
                         }
 
-                        await sendIcons()
                         await sendURLs(true, shouldShowIgnoredStored)
                         await stopLoading()
                         await sendFavicons()
@@ -419,7 +424,6 @@ export const openWebview = async (ignoreFocus?: boolean) => {
                             WEBVIEW_PANNEL.webview.html = html
                         }
 
-                        await sendIcons()
                         await sendURLs(true, !shouldShowIgnoredStored)
                         await stopLoading()
                         await updateTreeviews()
@@ -443,7 +447,6 @@ export const openWebview = async (ignoreFocus?: boolean) => {
     WEBVIEW_PANNEL.webview.html = viewHtml
 
     await startLoading()
-    await sendIcons()
     await sendURLs(true, shouldShowIgnored)
     await stopLoading()
     await sendFavicons()

@@ -4,7 +4,7 @@ export interface IURL extends Url {
     baseURL: string
     favicon: string | undefined
     isIgnored: boolean
-    isStared: boolean
+    isStarred: boolean
     hasFavicon: boolean
     description: string
 }
