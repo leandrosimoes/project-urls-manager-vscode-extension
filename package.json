@@ -28,6 +28,10 @@
 					"description": "Comma separated paths to be ignored on sync. (node_modules,src/your-file.js)",
 					"default": "node_modules,android,ios,.vscode,.git,.github"
 				},
+				"projectURLsManager.ignoreDomains": {
+					"type": "string",
+					"description": "Comma separated domains to be ignored on sync. (google.com,facebook.com)"
+				},
 				"projectURLsManager.extensionsList": {
 					"type": "string",
 					"description": "Comma separated of valid file extensions to be considered on sync. (.js,.html,.css)",

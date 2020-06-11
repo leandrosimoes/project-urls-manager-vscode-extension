@@ -31,7 +31,13 @@ export function activate(context: vscode.ExtensionContext) {
         } else {
             const shouldShowIgnored =
                 context.workspaceState.get<boolean>('shouldShowIgnored') || false
-            syncURLs(shouldShowIgnored)
+            syncURLs(shouldShowIgnored).then(() => {
+                setupTreeViews().then((treeviews) => {
+                    treeviews.IGNORED_TREEVIEW.updateTreviewData()
+                    treeviews.NORMAL_TREEVIEW.updateTreviewData()
+                    treeviews.IGNORED_TREEVIEW.updateTreviewData()
+                })
+            })
         }
     }
 

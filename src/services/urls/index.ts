@@ -23,7 +23,7 @@ async function searchForWorkspaceURLs(rootPath = vscode.workspace.rootPath) {
         }
 
         const configurations = await getConfigurations()
-        const { ignore, extensions } = configurations
+        const { ignorePaths, extensionsList, ignoreDomains } = configurations
         const context = getContext()
 
         if (!context) {
@@ -35,14 +35,14 @@ async function searchForWorkspaceURLs(rootPath = vscode.workspace.rootPath) {
             const filePath = `${rootPath}\\${file}`
             const stat = statSync(filePath)
 
-            if (ignore.indexOf(file) > -1) {
+            if (ignorePaths.indexOf(file) > -1) {
                 logger.log({ message: `File ignored: '${file}'` })
                 return
             }
 
             if (!stat.isDirectory()) {
                 const fileExtension = extname(file)
-                if (extensions.length > 0 && extensions.indexOf(fileExtension) === -1) {
+                if (extensionsList.length > 0 && extensionsList.indexOf(fileExtension) === -1) {
                     logger.log({ message: `File extension ignored: '${file}'` })
                     return
                 }
@@ -58,7 +58,11 @@ async function searchForWorkspaceURLs(rootPath = vscode.workspace.rootPath) {
                         const urlInstance = new URL(href).url
                         urlInstance.hasFavicon = false
 
-                        if (urlInstance && urlInstance.host) {
+                        if (
+                            urlInstance &&
+                            urlInstance.host &&
+                            ignoreDomains.indexOf(urlInstance.host) === -1
+                        ) {
                             URLS.push(urlInstance)
                         }
                     })
