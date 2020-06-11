@@ -2,7 +2,7 @@
 	"name": "project-urls-manager",
 	"displayName": "Project URLs Manager",
 	"description": "Manage all urls of your project in one place",
-	"version": "1.0.1",
+	"version": "1.1.0",
 	"icon": "docs/icon-256.png",
 	"publisher": "Leandro",
 	"galleryBanner": {
@@ -28,6 +28,10 @@
 					"description": "Comma separated paths to be ignored on sync. (node_modules,src/your-file.js)",
 					"default": "node_modules,android,ios,.vscode,.git,.github"
 				},
+				"projectURLsManager.ignoreDomains": {
+					"type": "string",
+					"description": "Comma separated domains to be ignored on sync. (google.com,facebook.com)"
+				},
 				"projectURLsManager.extensionsList": {
 					"type": "string",
 					"description": "Comma separated of valid file extensions to be considered on sync. (.js,.html,.css)",
@@ -47,8 +51,37 @@
 			{
 				"command": "projectURLsManager.clearCache",
 				"title": "Project URLs Manager: CLEAR CACHE"
+			},
+			{
+				"command": "urlList.openURL",
+				"title": "Project URLs Manager: Open URL in Browswer"
 			}
-		]
+		],
+		"viewsContainers": {
+		  "activitybar": [
+			{
+			  "id": "urlList",
+			  "title": "Project URLs Manager List",
+			  "icon": "docs/extension-icon-svg-24x24.svg"
+			}
+		  ]
+		},
+		"views": {
+		  "urlList": [
+			{
+			  "id": "starredList",
+			  "name": "Starred"
+			},
+			{
+			  "id": "normalList",
+			  "name": "Normal"
+			},
+			{
+				"id": "ignoredList",
+				"name": "Ignored"
+			}
+		  ]
+		}
 	},
 	"scripts": {
 		"dev": "npm-run-all clean compile copy-assets watch",

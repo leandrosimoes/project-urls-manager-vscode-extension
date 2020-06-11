@@ -7,8 +7,20 @@ import { IConfigurations } from './interfaces'
 
 export const getConfigurations = async (): Promise<IConfigurations> => {
     const defaultResult = {
-        ignore: ['node_modules,android,ios,.vscode,.git,.github'],
-        extensions: ['.js', '.jsx', '.ts', '.tsx', '.html', '.css', '.xml', '.txt', '.json', '.md'],
+        ignorePaths: ['node_modules,android,ios,.vscode,.git,.github'],
+        extensionsList: [
+            '.js',
+            '.jsx',
+            '.ts',
+            '.tsx',
+            '.html',
+            '.css',
+            '.xml',
+            '.txt',
+            '.json',
+            '.md',
+        ],
+        ignoreDomains: [],
     }
 
     try {
@@ -19,12 +31,20 @@ export const getConfigurations = async (): Promise<IConfigurations> => {
             vscode.workspace.getConfiguration('projectURLsManager').get<string>('extensionsList') ||
             ''
 
+        const ignoreDomains =
+            vscode.workspace.getConfiguration('projectURLsManager').get<string>('ignoreDomains') ||
+            ''
+
         const configurations: IConfigurations = {
-            ignore: ignorePaths
+            ignorePaths: ignorePaths
                 .split(',')
                 .map((i) => i.trim())
                 .filter((i) => !!i),
-            extensions: extensionsList
+            extensionsList: extensionsList
+                .split(',')
+                .map((i) => i.trim())
+                .filter((i) => !!i),
+            ignoreDomains: ignoreDomains
                 .split(',')
                 .map((i) => i.trim())
                 .filter((i) => !!i),
