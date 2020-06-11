@@ -53,8 +53,8 @@
 				"title": "Project URLs Manager: CLEAR CACHE"
 			},
 			{
-				"title": "Open URL in Browswer",
-				"command": "urlList.openURL"
+				"command": "urlList.openURL",
+				"title": "Project URLs Manager: Open URL in Browswer"
 			}
 		],
 		"viewsContainers": {
