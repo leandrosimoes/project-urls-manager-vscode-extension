@@ -47,4 +47,4 @@ There's some commands available for the extension too:
 
 ## Release Notes
 
-You can see all change log [here](https://github.com/leandrosimoes/project-urls-manager-vscode-extension/blob/master/CHANGELOG.md).
+You can see all change log [here](https://github.com/leandrosimoes/project-urls-manager-vscode-extension/blob/develop/CHANGELOG.md).

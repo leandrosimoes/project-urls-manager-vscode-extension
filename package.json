@@ -2,7 +2,7 @@
 	"name": "project-urls-manager",
 	"displayName": "Project URLs Manager",
 	"description": "Manage all urls of your project in one place",
-	"version": "1.0.1",
+	"version": "1.2.0",
 	"icon": "docs/icon-256.png",
 	"publisher": "Leandro",
 	"galleryBanner": {
@@ -48,7 +48,32 @@
 				"command": "projectURLsManager.clearCache",
 				"title": "Project URLs Manager: CLEAR CACHE"
 			}
-		]
+		],
+		"viewsContainers": {
+		  "activitybar": [
+			{
+			  "id": "url-list",
+			  "title": "Project URLs Manager List",
+			  "icon": "docs/extension-icon-svg-24x24.svg"
+			}
+		  ]
+		},
+		"views": {
+		  "url-list": [
+			{
+			  "id": "stared-list",
+			  "name": "Stared"
+			},
+			{
+			  "id": "normal-list",
+			  "name": "Normal"
+			},
+			{
+				"id": "ignored-list",
+				"name": "Ignored"
+			}
+		  ]
+		}
 	},
 	"scripts": {
 		"dev": "npm-run-all clean compile copy-assets watch",

@@ -5,7 +5,7 @@ export default class URL {
     private _url: IURL
 
     constructor(url: string) {
-        // eslint-disable-next-line no-underscore-dangle
+        /* eslint-disable-next-line no-underscore-dangle */
         this._url = {
             ...parse(url),
             baseURL: url,
@@ -13,6 +13,7 @@ export default class URL {
             isIgnored: false,
             hasFavicon: false,
             description: '',
+            isStared: false,
         }
     }
 
