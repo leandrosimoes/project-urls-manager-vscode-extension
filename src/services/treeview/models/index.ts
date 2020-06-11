@@ -3,71 +3,77 @@ import * as vscode from 'vscode'
 import { IURL } from '../../urls/interfaces'
 import { EURLTreeItemType, EProjectURLsTreeViewType } from '../enums'
 import { getURLs } from '../../urls'
+import { logger } from '../../logger'
+import { ECommands } from '../../commands/enums'
 
 export class ProjectURLsTreeItem extends vscode.TreeItem {
     constructor(
         public readonly label: string,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        public readonly command?: vscode.Command
+        public readonly collapsibleState: vscode.TreeItemCollapsibleState
     ) {
         super(label, collapsibleState)
     }
 
     get tooltip(): string {
-        return this.label
+        return 'Click to open the URL in browswer'
     }
 
-    iconPath = new vscode.ThemeIcon('link')
+    iconPath =
+        this.collapsibleState === vscode.TreeItemCollapsibleState.Collapsed
+            ? new vscode.ThemeIcon('globe')
+            : new vscode.ThemeIcon('link')
+
+    command = {
+        command: ECommands.TREEVIEW_OPEN_URL,
+        arguments: [this.label],
+        title: '',
+    }
 }
 
 export class ProjectURLsTreeViewDataProvider
     implements vscode.TreeDataProvider<ProjectURLsTreeItem> {
     private _type: EURLTreeItemType
 
-    private _urls: ProjectURLsTreeItem[]
+    private _urls: IURL[]
 
     constructor(type: EURLTreeItemType, urls: IURL[]) {
         this._type = type
-        this._urls = this._mapURLItems(urls)
+        this._urls = urls
     }
 
-    private _onDidChangeTreeData: vscode.EventEmitter<
-        ProjectURLsTreeItem | undefined
-    > = new vscode.EventEmitter<ProjectURLsTreeItem | undefined>()
-
-    readonly onDidChangeTreeData: vscode.Event<ProjectURLsTreeItem | undefined> = this
-        ._onDidChangeTreeData.event
-
-    refresh(): void {
-        this._onDidChangeTreeData.fire(undefined)
-    }
-
-    private _mapURLItems(urls: IURL[]): ProjectURLsTreeItem[] {
+    private _mapURLItems(urls: IURL[], host?: string): ProjectURLsTreeItem[] {
         switch (this._type) {
             case EURLTreeItemType.STARED:
-                return urls
-                    .filter((url) => url.isStared && !url.isIgnored)
-                    .map(
-                        (url) =>
-                            new ProjectURLsTreeItem(url.href, vscode.TreeItemCollapsibleState.None)
-                    )
+                urls = urls.filter((url) => url.isStared && !url.isIgnored)
+                break
             case EURLTreeItemType.NORMAL:
-                return urls
-                    .filter((url) => !url.isStared && !url.isIgnored)
-                    .map(
-                        (url) =>
-                            new ProjectURLsTreeItem(url.href, vscode.TreeItemCollapsibleState.None)
-                    )
+                urls = urls.filter((url) => !url.isStared && !url.isIgnored)
+                break
             case EURLTreeItemType.IGNORED:
-                return urls
-                    .filter((url) => url.isIgnored)
-                    .map(
-                        (url) =>
-                            new ProjectURLsTreeItem(url.href, vscode.TreeItemCollapsibleState.None)
-                    )
+                urls = urls.filter((url) => url.isIgnored)
+                break
             default:
-                return []
+                urls = []
+                break
         }
+
+        if (!host) {
+            const hosts = [
+                ...new Set(
+                    urls
+                        .filter((url: IURL) => !!url.host)
+                        .map((url: IURL) => `${url.protocol}//${url.host}`)
+                ),
+            ].filter((h) => !!h)
+
+            return hosts.map(
+                (h) => new ProjectURLsTreeItem(h, vscode.TreeItemCollapsibleState.Collapsed)
+            )
+        }
+
+        return urls
+            .filter((url) => url.host === host.replace(`${url.protocol}//`, ''))
+            .map((url) => new ProjectURLsTreeItem(url.href, vscode.TreeItemCollapsibleState.None))
     }
 
     getTreeItem(element: ProjectURLsTreeItem): ProjectURLsTreeItem {
@@ -76,10 +82,10 @@ export class ProjectURLsTreeViewDataProvider
 
     getChildren(element?: ProjectURLsTreeItem | undefined): Thenable<ProjectURLsTreeItem[]> {
         if (!element) {
-            return Promise.resolve(this._urls)
+            return Promise.resolve(this._mapURLItems(this._urls))
         }
 
-        return Promise.resolve([])
+        return Promise.resolve(this._mapURLItems(this._urls, element.label))
     }
 }
 
@@ -93,6 +99,8 @@ export class ProjectURLsTreeView {
     }
 
     async updateTreviewData() {
+        logger.log({ message: `Start updating ${this._type} TreeView ...` })
+
         const urls = await getURLs(false, this._type === EProjectURLsTreeViewType.IGNORED)
 
         if (this.instance) {

@@ -5,9 +5,9 @@ export enum EURLTreeItemType {
 }
 
 export enum EProjectURLsTreeViewType {
-    STARED = 'stared-list',
-    NORMAL = 'normal-list',
-    IGNORED = 'ignored-list',
+    STARED = 'staredList',
+    NORMAL = 'normalList',
+    IGNORED = 'ignoredList',
 }
 
 export default EURLTreeItemType

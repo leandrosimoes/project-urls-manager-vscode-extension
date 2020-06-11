@@ -12,6 +12,7 @@ import { getAssetsPaths, EIcons } from '../assets'
 import { IFavicon } from './interfaces'
 import { EActionTypes, EThemes } from './enums'
 import { logger } from '../logger'
+import { getTreeViews } from '../treeview'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pageIcon = require('page-icon')
@@ -281,6 +282,13 @@ const sendIcons = async () => {
     }
 }
 
+const updateTreeviews = async () => {
+    const treeviews = await getTreeViews()
+    treeviews.STARED_TREEVIEW.updateTreviewData()
+    treeviews.NORMAL_TREEVIEW.updateTreviewData()
+    treeviews.IGNORED_TREEVIEW.updateTreviewData()
+}
+
 export const openWebview = async (ignoreFocus?: boolean) => {
     const context = getContext()
 
@@ -337,14 +345,15 @@ export const openWebview = async (ignoreFocus?: boolean) => {
                 case EActionTypes.IGNORE:
                     ;(async () => {
                         await addURLToIgnoreList(url)
-                        const html = await getHTML(true, shouldShowIgnored)
+                        const html = await getHTML(true, shouldShowIgnoredStored)
                         if (html && WEBVIEW_PANNEL) {
                             WEBVIEW_PANNEL.webview.html = html
                         }
 
                         await sendIcons()
-                        await sendURLs(true, shouldShowIgnored)
+                        await sendURLs(true, shouldShowIgnoredStored)
                         await stopLoading()
+                        await updateTreeviews()
                         await sendFavicons()
                     })()
                     break
@@ -352,14 +361,15 @@ export const openWebview = async (ignoreFocus?: boolean) => {
                 case EActionTypes.RESTORE:
                     ;(async () => {
                         await restoreURLFromIgnoreList(url)
-                        const html = await getHTML(true, shouldShowIgnored)
+                        const html = await getHTML(true, shouldShowIgnoredStored)
                         if (html && WEBVIEW_PANNEL) {
                             WEBVIEW_PANNEL.webview.html = html
                         }
 
                         await sendIcons()
-                        await sendURLs(true, shouldShowIgnored)
+                        await sendURLs(true, shouldShowIgnoredStored)
                         await stopLoading()
+                        await updateTreeviews()
                         await sendFavicons()
                     })()
                     break
@@ -367,13 +377,13 @@ export const openWebview = async (ignoreFocus?: boolean) => {
                 case EActionTypes.SAVE_URL_DESCRIPTION:
                     ;(async () => {
                         await saveURLDescription(url)
-                        const html = await getHTML(true, shouldShowIgnored)
+                        const html = await getHTML(true, shouldShowIgnoredStored)
                         if (html && WEBVIEW_PANNEL) {
                             WEBVIEW_PANNEL.webview.html = html
                         }
 
                         await sendIcons()
-                        await sendURLs(true, shouldShowIgnored)
+                        await sendURLs(true, shouldShowIgnoredStored)
                         await stopLoading()
                         await sendFavicons()
                     })()
@@ -385,13 +395,13 @@ export const openWebview = async (ignoreFocus?: boolean) => {
                         currentTheme === EThemes.DARK ? EThemes.LIGHT : EThemes.DARK
                     )
                     ;(async () => {
-                        const html = await getHTML(true, shouldShowIgnored)
+                        const html = await getHTML(true, shouldShowIgnoredStored)
                         if (html && WEBVIEW_PANNEL) {
                             WEBVIEW_PANNEL.webview.html = html
                         }
 
                         await sendIcons()
-                        await sendURLs(true, shouldShowIgnored)
+                        await sendURLs(true, shouldShowIgnoredStored)
                         await stopLoading()
                         await sendFavicons()
                     })()
@@ -412,6 +422,7 @@ export const openWebview = async (ignoreFocus?: boolean) => {
                         await sendIcons()
                         await sendURLs(true, !shouldShowIgnoredStored)
                         await stopLoading()
+                        await updateTreeviews()
                         await sendFavicons()
                     })()
                     break

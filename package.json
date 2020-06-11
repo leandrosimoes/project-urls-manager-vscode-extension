@@ -47,29 +47,33 @@
 			{
 				"command": "projectURLsManager.clearCache",
 				"title": "Project URLs Manager: CLEAR CACHE"
+			},
+			{
+				"title": "Open URL in Browswer",
+				"command": "urlList.openURL"
 			}
 		],
 		"viewsContainers": {
 		  "activitybar": [
 			{
-			  "id": "url-list",
+			  "id": "urlList",
 			  "title": "Project URLs Manager List",
 			  "icon": "docs/extension-icon-svg-24x24.svg"
 			}
 		  ]
 		},
 		"views": {
-		  "url-list": [
+		  "urlList": [
 			{
-			  "id": "stared-list",
+			  "id": "staredList",
 			  "name": "Stared"
 			},
 			{
-			  "id": "normal-list",
+			  "id": "normalList",
 			  "name": "Normal"
 			},
 			{
-				"id": "ignored-list",
+				"id": "ignoredList",
 				"name": "Ignored"
 			}
 		  ]
