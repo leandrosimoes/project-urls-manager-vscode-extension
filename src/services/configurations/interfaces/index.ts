@@ -1,4 +1,5 @@
 export interface IConfigurations {
-    ignore: string[]
-    extensions: string[]
+    ignorePaths: string[]
+    extensionsList: string[]
+    ignoreDomains: string[]
 }

@@ -7,6 +7,7 @@ import { logger } from './services/logger'
 import { syncURLs } from './services/urls'
 import { setContext } from './services/context'
 import { getInstance, openWebview } from './services/webview'
+import { setupTreeViews } from './services/treeview'
 
 export function activate(context: vscode.ExtensionContext) {
     if (!vscode.workspace.rootPath) {
@@ -30,7 +31,13 @@ export function activate(context: vscode.ExtensionContext) {
         } else {
             const shouldShowIgnored =
                 context.workspaceState.get<boolean>('shouldShowIgnored') || false
-            syncURLs(shouldShowIgnored)
+            syncURLs(shouldShowIgnored).then(() => {
+                setupTreeViews().then((treeviews) => {
+                    treeviews.IGNORED_TREEVIEW.updateTreviewData()
+                    treeviews.NORMAL_TREEVIEW.updateTreviewData()
+                    treeviews.IGNORED_TREEVIEW.updateTreviewData()
+                })
+            })
         }
     }
 
@@ -42,6 +49,11 @@ export function activate(context: vscode.ExtensionContext) {
     ;(async () => {
         const shouldShowIgnored = context.workspaceState.get<boolean>('shouldShowIgnored') || false
         await syncURLs(shouldShowIgnored)
+        const treeViews = await setupTreeViews()
+
+        treeViews.IGNORED_TREEVIEW.updateTreviewData()
+        treeViews.NORMAL_TREEVIEW.updateTreviewData()
+        treeViews.IGNORED_TREEVIEW.updateTreviewData()
     })()
 }
 

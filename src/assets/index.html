@@ -9,8 +9,8 @@
     </head>
     <body class="loading" data-bind="css: { 'loading': isLoading } ">
         <main>
-            <h1>{{TITLE}}</h1>
-            <a type="button" id="help-button" href="https://github.com/leandrosimoes/project-urls-manager-vscode-extension" target="_blank">Need Help?</a>
+            <h1><i class="codicon codicon-link"></i>&nbsp;{{TITLE}}</h1>
+            <a type="button" id="help-button" href="https://github.com/leandrosimoes/project-urls-manager-vscode-extension" target="_blank"><i class="codicon codicon-question"></i>&nbsp;Need Help?</a>
             <div id="controls-area">
                 <div class="control">
                     <input 
@@ -21,14 +21,8 @@
                 </div>
                 <div class="toggle-ignore-control control">
                     <div class="toggle"></div>
-                    <img 
-                        class="toggle-image" 
-                        data-bind="attr: { src: icons()['ignore'] }, click: toggleShowIgnore" 
-                        title="Show Ignored URLs" />
-                    <img 
-                        class="toggle-image" 
-                        data-bind="attr: { src: icons()['restore'] }, click: toggleShowIgnore" 
-                        title="Hide Ignored URLs" />
+                    <i class="codicon codicon-eye" data-bind="click: toggleShowIgnore" title="Show Ignored URLs"></i>
+                    <i class="codicon codicon-eye-closed" data-bind="click: toggleShowIgnore" title="Hide Ignored URLs"></i>
                 </div>
                 <div class="toggle-theme-control control">
                     <div class="toggle"></div>
@@ -68,29 +62,16 @@
                             </div>
                         </div>
                         <div class="url-actions">
-                            <button 
-                                type="button" 
-                                class="url-action" 
-                                data-bind="click: () => { $root.copyToClipboard($data) }">
-                                <img class="url-action-icon" data-bind="attr: { src: $root.icons()['copy-clipboard'] }" />Copy
-                            </button>
-                            <button 
-                                type="button" 
-                                class="url-action" 
-                                data-bind="visible: !isIgnored, click: () => { $root.ignore($data) }">
-                                <img class="url-action-icon" data-bind="attr: { src: $root.icons()['ignore'] }" />Ignore
-                            </button>
-                            <button 
-                                type="button" 
-                                class="url-action" 
-                                data-bind="visible: isIgnored, click: () => { $root.restore($data) }">
-                                <img class="url-action-icon" data-bind="attr: { src: $root.icons()['restore'] }" />Restore
-                            </button>
+                            <i class="codicon codicon-clippy" data-bind="click: () => { $root.copyToClipboard($data) }" title="Copy to Clipboard"></i>
+                            <i class="codicon codicon-eye-closed" data-bind="visible: !isIgnored, click: () => { $root.ignore($data) }" title="Ignore URL"></i>
+                            <i class="codicon codicon-eye" data-bind="visible: isIgnored, click: () => { $root.restore($data) }" title="Restore URL"></i>
+                            <i class="codicon codicon-star-empty" data-bind="visible: !isStarred, click: () => { $root.star($data) }" title="Star URL"></i>
+                            <i class="codicon codicon-star-full" data-bind="visible: isStarred, click: () => { $root.unstar($data) }" title="Unstar URL"></i>
                         </div>
                     </div>
                 </div>
             </div>
-            <a type="button" id="github-button" href="https://github.com/leandrosimoes" target="_blank">Made with ❤ by Leandro Simões</a>
+            <a type="button" id="github-button" href="https://github.com/leandrosimoes" target="_blank">Made with <i class="codicon codicon-heart"></i> by Leandro Simões</a>
 
             {{SCRIPTS}}
         </main>

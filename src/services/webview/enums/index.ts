@@ -11,6 +11,8 @@ export enum EActionTypes {
     SAVE_URL_DESCRIPTION = 'SAVE_URL_DESCRIPTION',
     TOGGLE_THEME = 'TOGGLE_THEME',
     TOGGLE_SHOW_IGNORED = 'TOGGLE_SHOW_IGNORED',
+    STAR = 'STAR',
+    UNSTAR = 'UNSTAR',
 }
 
 export enum EThemes {

@@ -23,7 +23,7 @@ async function searchForWorkspaceURLs(rootPath = vscode.workspace.rootPath) {
         }
 
         const configurations = await getConfigurations()
-        const { ignore, extensions } = configurations
+        const { ignorePaths, extensionsList, ignoreDomains } = configurations
         const context = getContext()
 
         if (!context) {
@@ -35,14 +35,14 @@ async function searchForWorkspaceURLs(rootPath = vscode.workspace.rootPath) {
             const filePath = `${rootPath}\\${file}`
             const stat = statSync(filePath)
 
-            if (ignore.indexOf(file) > -1) {
+            if (ignorePaths.indexOf(file) > -1) {
                 logger.log({ message: `File ignored: '${file}'` })
                 return
             }
 
             if (!stat.isDirectory()) {
                 const fileExtension = extname(file)
-                if (extensions.length > 0 && extensions.indexOf(fileExtension) === -1) {
+                if (extensionsList.length > 0 && extensionsList.indexOf(fileExtension) === -1) {
                     logger.log({ message: `File extension ignored: '${file}'` })
                     return
                 }
@@ -58,7 +58,11 @@ async function searchForWorkspaceURLs(rootPath = vscode.workspace.rootPath) {
                         const urlInstance = new URL(href).url
                         urlInstance.hasFavicon = false
 
-                        if (urlInstance && urlInstance.host) {
+                        if (
+                            urlInstance &&
+                            urlInstance.host &&
+                            ignoreDomains.indexOf(urlInstance.host) === -1
+                        ) {
                             URLS.push(urlInstance)
                         }
                     })
@@ -141,7 +145,16 @@ export const getURLs = async (forceSync = false, showIgnored: boolean): Promise<
     }
 
     try {
-        const existentURLs = (context.workspaceState.get<IURL[]>('urls') || []).sort((a, b) => {
+        const existentURLs = context.workspaceState.get<IURL[]>('urls') || []
+
+        const starredURLs = (existentURLs.filter((ex) => ex.isStarred) || []).sort((a, b) => {
+            if (!a.host || !b.host) {
+                return 1
+            }
+
+            return a.host >= b.host ? 1 : -1
+        })
+        const notStarredURLs = (existentURLs.filter((ex) => !ex.isStarred) || []).sort((a, b) => {
             if (!a.host || !b.host) {
                 return 1
             }
@@ -149,7 +162,7 @@ export const getURLs = async (forceSync = false, showIgnored: boolean): Promise<
             return a.host >= b.host ? 1 : -1
         })
 
-        return existentURLs.filter((ex) => showIgnored || !ex.isIgnored)
+        return [...starredURLs, ...notStarredURLs].filter((ex) => showIgnored || !ex.isIgnored)
     } catch (error) {
         logger.log({ message: `getURLs ERROR: ${error.message}` })
         return []
@@ -217,6 +230,52 @@ export const addURLToIgnoreList = async (url: IURL) => {
         await asyncForEach(existentURLs, async (existent: IURL) => {
             if (existent.href === url.href) {
                 existent.isIgnored = true
+                existent.isStarred = false
+            }
+        })
+
+        context.workspaceState.update('urls', existentURLs)
+    } catch (error) {
+        logger.log({ message: `addURLToIgnoreList ERROR: ${error.message}` })
+    }
+}
+
+export const restoreURLFromStarredList = async (url: IURL) => {
+    const context = getContext()
+
+    if (!context) {
+        return
+    }
+
+    try {
+        const existentURLs: IURL[] = context.workspaceState.get<IURL[]>('urls') || []
+
+        await asyncForEach(existentURLs, async (existent: IURL) => {
+            if (existent.href === url.href) {
+                existent.isStarred = false
+            }
+        })
+
+        context.workspaceState.update('urls', existentURLs)
+    } catch (error) {
+        logger.log({ message: `restoreURLFromIgnoreList ERROR: ${error.message}` })
+    }
+}
+
+export const addURLToStarredList = async (url: IURL) => {
+    const context = getContext()
+
+    if (!context) {
+        return
+    }
+
+    try {
+        const existentURLs: IURL[] = context.workspaceState.get<IURL[]>('urls') || []
+
+        await asyncForEach(existentURLs, async (existent: IURL) => {
+            if (existent.href === url.href) {
+                existent.isStarred = true
+                existent.isIgnored = false
             }
         })
 

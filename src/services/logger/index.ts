@@ -34,14 +34,17 @@ export const logger = {
             opc.clear()
         }
 
+        const { message = '' } = options
+        const messageWithNoIcons = message.replace(/\$\(.*?\)/g, '').trim()
+
         if (options.shouldNotBreakLine) {
-            opc.append(options.message)
+            opc.append(messageWithNoIcons)
         } else {
-            opc.appendLine(options.message)
+            opc.appendLine(messageWithNoIcons)
         }
 
         if (options.shouldSetStatusBarMessage) {
-            stb.text = options.message
+            stb.text = message
             stb.show()
         }
     },
