@@ -81,7 +81,21 @@
 				"name": "Ignored"
 			}
 		  ]
-		}
+		},
+		"viewsWelcome": [
+			{
+				"view": "starredList",
+				"contents": "No starred URLs found\n[SYNC](command:projectURLsManager.sync)"
+			},
+			{
+				"view": "normalList",
+				"contents": "No URLs found\n[SYNC](command:projectURLsManager.sync)"
+			},
+			{
+				"view": "ignoredList",
+				"contents": "No ignored URLs found\n[SYNC](command:projectURLsManager.sync)"
+			}
+		]
 	},
 	"scripts": {
 		"dev": "npm-run-all clean compile copy-assets watch",

@@ -9,13 +9,9 @@ export enum EActionTypes {
     START_LOADING = 'START_LOADING',
     STOP_LOADING = 'STOP_LOADING',
     SAVE_URL_DESCRIPTION = 'SAVE_URL_DESCRIPTION',
-    TOGGLE_THEME = 'TOGGLE_THEME',
     TOGGLE_SHOW_IGNORED = 'TOGGLE_SHOW_IGNORED',
     STAR = 'STAR',
     UNSTAR = 'UNSTAR',
 }
 
-export enum EThemes {
-    DARK = 'dark-theme',
-    LIGHT = 'light-theme',
-}
+export default EActionTypes
