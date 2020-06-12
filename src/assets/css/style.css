@@ -2,73 +2,26 @@
     box-sizing: border-box;
 }
 
-html:not(.light-theme) {
-  --pam-background: #1e1e1e;
-  --pam-foreground: #007acc;
-  --pam-not-urls-foreground: #f2f2f2;
-  --pam-error-color: #ff5353;
-  --pam-box-shadow-color: rgba(0,0,0,.1);
-  --pam-border-color: #131313;
-  --pam-action-background: #007acc;
-  --pam-action-foreground: #fff;
-  --pam-action-border: #007acc;
-  --pam-url-background: #131313;
-  --pam-url-domain-foreground: #646464;
-  --pam-url-ignored-background: #131313;
-  --pam-toggle-control-background: rgba(0,0,0,.5);
-  --pam-toggle-box-shadow: #000;
-  --pam-toggle-background: #007acc;
-  --pam-loading-background: rgba(0,0,0,.9);
-  --pam-loading-foreground: #007acc;
-}
-
-html.light-theme {
-  --pam-background: #fff;
-  --pam-foreground: #292929;
-  --pam-not-urls-foreground: #292929;
-  --pam-error-color: #ff5353;
-  --pam-box-shadow-color: rgba(0,0,0,.1);
-  --pam-border-color: #f2f2f2;
-  --pam-action-background: #f2f2f2;
-  --pam-action-foreground: #292929;
-  --pam-action-border: #f2f2f2;
-  --pam-url-background: #fff;
-  --pam-url-ignored-background: #f2f2f2;
-  --pam-url-domain-foreground: #646464;
-  --pam-toggle-control-background: #f2f2f2;
-  --pam-toggle-box-shadow: rgba(0,0,0,.1);
-  --pam-toggle-background: #292929;
-  --pam-loading-background: rgba(255,255,255,.9);
-  --pam-loading-foreground: #292929;
-}
-
 html,
 body {
     margin: 0;
     padding: 0;
     width: 100%;
-    height: 100%;
-    color: var(--pam-foreground);
-    background-color: var(--pam-background);
-    overflow: hidden;
+    color: var(--vscode-editor-foreground);
+    background-color: var(--vscode-editor-background);
 }
 
-body.loading::after {
-  content: 'Loading ...';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--pam-loading-background);
-  color: var(--pam-loading-foreground);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0;
-  padding: 0;
-  font-size: 20px;
-  z-index: 99999;
+@keyframes pam-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+i.spinning {
+  animation: pam-spin .5s linear infinite;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -94,11 +47,28 @@ a#github-button i {
 
 main {
     width: 70%;
-    height: 100%;
     padding: 20px;
     margin: 0 auto;
-    overflow-x: hidden;
-    overflow-y: auto;
+}
+
+#loading-message {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: var(--vscode-editor-foreground);
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+#loading-message i {
+  position: relative;
+  top: 3px;
+}
+
+#loading-message i::before {
+  font-size: 20px;
 }
 
 #controls-area {
@@ -119,26 +89,20 @@ main {
   padding: 6px 10px;
   border-radius: 3px;
   width: 300px;
-  border: 1px solid var(--pam-border-color);
-}
-
-.toggle-theme-control i {
-  font-style: normal;
-  cursor: pointer;
+  border: 1px solid var(--vscode-text-input-border);
 }
 
 .toggle-ignore-control i {    
   cursor: pointer;
 }
 
-.toggle-theme-control,
 .toggle-ignore-control {
     position: relative;
     width: 60px;
     height: 28px;
     display: flex;
     justify-content: space-between;
-    background-color: var(--pam-toggle-control-background);
+    background-color: var(--vscode-editorWidget-background);
     padding: 5px;
     border-radius: 60px;
 }
@@ -147,33 +111,28 @@ main {
   position: absolute;
   width: 18px;
   height: 18px;
-  background-color: var(--pam-toggle-background);
+  background-color: var(--vscode-editor-foreground);
   border-radius: 50%;
-  box-shadow: 0 0 5px var(--pam-toggle-box-shadow);
+  box-shadow: 0 0 5px var(--vscode-widget-shadow);
   z-index: 9999;
 }
 
-html:not(.light-theme) .toggle-theme-control .toggle,
 html:not(.show-ignored) .toggle-ignore-control .toggle {
   right: 5px;
 }
 
 #errors {
-    color: var(--pam-error-color);
+    color: var(--vscode-error-foreground);
 }
 
 .hidden {
     display: none !important;
 }
 
-.no-urls {
-  color: var(--pam-not-urls-foreground);
+#no-urls {
+  color: var(--vscode-editor-foreground);
   font-size: 20px;
-  margin-top: 15px;
-}
-
-html:not(.light-theme) .favicon.default-favicon {
-  filter: invert(1);
+  margin: 15px 0;
 }
 
 #urls-list {
@@ -182,10 +141,10 @@ html:not(.light-theme) .favicon.default-favicon {
 }
 
 .url-domain {
-  color: var(--pam-url-domain-foreground);
+  color: var(--vscode-activityBar-inactiveForeground);
   padding: 15px 0;
   margin-bottom: 10px;
-  border-bottom: 1px solid var(--pam-url-domain-foreground);
+  border-bottom: 1px solid var(--vscode-activityBar-inactiveForeground);
 }
 
 .url-wrapper {
@@ -194,19 +153,19 @@ html:not(.light-theme) .favicon.default-favicon {
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 3px 5px var(--pam-box-shadow-color);
+    box-shadow: 0 3px 5px var(--vscode-widget-shadow);
     margin-bottom: 10px;
     border-radius: 3px;
-    border: 1px solid var(--pam-border-color);
+    border: 1px solid var(--vscode-text-input-border);
 }
 
 .url-wrapper:not(.ignored) {
-  background-color: var(--pam-url-background);
+  background-color: var(--vscode-editorWidget-background);
 }
 
 .url-wrapper.ignored {
     opacity: .6;
-    background-color: var(--pam-url-ignored-background);
+    background-color: var(--vscode-editorWidget-background);
 }
 
 .url-info {
@@ -218,7 +177,7 @@ html:not(.light-theme) .favicon.default-favicon {
 
 .url-info .url-href {
     font-size: 18px;
-    color: var(--pam-foreground);
+    color: var(--vscode-editor-foreground);
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -227,7 +186,7 @@ html:not(.light-theme) .favicon.default-favicon {
 .url-info .url-description-input {
     border: none;
     background-color: transparent;
-    color: var(--pam-url-domain-foreground);
+    color: var(--vscode-activityBar-inactiveForeground);
     font-size: 14px;
     margin-top: 5px;
     padding: 5px 0;
@@ -266,21 +225,6 @@ html:not(.light-theme) .favicon.default-favicon {
   margin: 0 5px;
   cursor: pointer;
 }
-
-
-html:not(.light-theme) .url-action:active {
-    box-shadow: 0 0 3px #000 inset;
-}
-
-html.light-theme .url-action:active {
-  box-shadow: none;
-}
-
-.url-action-icon {
-    width: 12px;
-    margin-right: 5px;
-}
-
 
 /* SCROLL */
 ::-webkit-scrollbar {

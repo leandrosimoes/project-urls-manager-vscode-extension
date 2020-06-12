@@ -17,7 +17,7 @@ import { asyncForEach, waitForXSeconds } from '../../utils'
 import { IURL } from '../urls/interfaces'
 import { getAssetsPaths } from '../assets'
 import { IFavicon } from './interfaces'
-import { EActionTypes, EThemes } from './enums'
+import { EActionTypes } from './enums'
 import { logger } from '../logger'
 import { getTreeViews } from '../treeview'
 
@@ -144,8 +144,6 @@ const prepareHTML = async (html: string, shouldShowIgnored: boolean) => {
         html = html.replace(/{{SHOW_IGNORED}}/g, shouldShowIgnored ? ' show-ignored' : '')
 
         const scripts = await getScriptsToInject()
-        const currentTheme = context.workspaceState.get<string>('theme') || EThemes.DARK
-        html = html.replace(/{{THEME}}/g, currentTheme)
 
         if (scripts && scripts.length > 0) {
             html = html.replace(/{{SCRIPTS}}/g, scripts.join('\n'))
@@ -309,7 +307,6 @@ export const openWebview = async (ignoreFocus?: boolean) => {
 
             const shouldShowIgnoredStored =
                 currentContext.workspaceState.get<boolean>('shouldShowIgnored') || false
-            const currentTheme = currentContext.workspaceState.get<string>('theme') || EThemes.DARK
             const { url } = message
 
             switch (message.type) {
@@ -384,23 +381,6 @@ export const openWebview = async (ignoreFocus?: boolean) => {
                 case EActionTypes.SAVE_URL_DESCRIPTION:
                     ;(async () => {
                         await saveURLDescription(url)
-                        const html = await getHTML(true, shouldShowIgnoredStored)
-                        if (html && WEBVIEW_PANNEL) {
-                            WEBVIEW_PANNEL.webview.html = html
-                        }
-
-                        await sendURLs(true, shouldShowIgnoredStored)
-                        await stopLoading()
-                        await sendFavicons()
-                    })()
-                    break
-
-                case EActionTypes.TOGGLE_THEME:
-                    currentContext.workspaceState.update(
-                        'theme',
-                        currentTheme === EThemes.DARK ? EThemes.LIGHT : EThemes.DARK
-                    )
-                    ;(async () => {
                         const html = await getHTML(true, shouldShowIgnoredStored)
                         if (html && WEBVIEW_PANNEL) {
                             WEBVIEW_PANNEL.webview.html = html
