@@ -10,14 +10,14 @@ This is how the Project URLs Manager looks like when open:
 
 ![URLs Manager](https://raw.githubusercontent.com/leandrosimoes/project-urls-manager-vscode-extension/master/docs/manager.png)
 
-1. Search for URLs on list
-2. Toggle whenever you want to see or not the ignored URLs on the list
-3. URL actions (Copy to Clipboard, Ignore, Restore, Star, Unstar)
-4. When ignored URLs are visible, they get a little bit of opacity
-5. Click at the URL address to open on your browser
-6. Add a quick description about the URL
-7. See how many URLs was found on your project and click to open the manager window
-8. TreeVeiw pannel that shows all URLs separated by status. You can double click them to open on browser.
+* **Search Input**: Search for URLs on list
+* **Ignored URLs Visibility Toggle** Toggle whenever you want to see or not the ignored URLs on the list
+* **URL Actions**: Copy to Clipboard, Ignore, Restore, Star and Unstar actions
+* **Ignored URL**: When ignored URLs are visible, they get a little bit of opacity
+* **URL Address**: Click at the URL address to open on your browser
+* **URL Description**: Add a quick description about the URL
+* **Status Bar/Open Button**: See how many URLs was found on your project and click to open the manager window
+* **Treview**: Pannels that shows all URLs separated by status. You can double click them to open on browser.
 
 ## Extension Settings
 
