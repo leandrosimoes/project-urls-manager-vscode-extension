@@ -28,6 +28,11 @@ export function activate(context: vscode.ExtensionContext) {
 
         if (webviewPannel) {
             openWebview(true)
+            setupTreeViews().then((treeviews) => {
+                treeviews.IGNORED_TREEVIEW.updateTreviewData()
+                treeviews.NORMAL_TREEVIEW.updateTreviewData()
+                treeviews.IGNORED_TREEVIEW.updateTreviewData()
+            })
         } else {
             const shouldShowIgnored =
                 context.workspaceState.get<boolean>('shouldShowIgnored') || false

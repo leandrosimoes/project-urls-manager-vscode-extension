@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 - You can see more about what's going on [here](https://github.com/leandrosimoes/project-urls-manager-vscode-extension/issues), even open a new issue with your sugestions/errors.
 
+## [1.2.0]
+### Features
+- Now the pannels in the Webview has a default message and a SYNC button when the panel has no URLs so the users can force the sync command
+
+### Changes
+- The theme is not set by the theme that users are using in their VS Code. So because of that, the theme toggle at the manager was removed
+
+### Fixes
+- The TreeView URLs were not syncing when the manager was open. Now it's fixed and the URLs are syncing correctly
+
 ## [1.1.0]
 ### Features
 - New configuration to add domains that you want to ignore

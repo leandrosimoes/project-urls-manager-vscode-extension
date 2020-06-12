@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="{{THEME}}{{SHOW_IGNORED}}">
+<html lang="en" class="{{SHOW_IGNORED}}">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +7,7 @@
 
         {{STYLES}}
     </head>
-    <body class="loading" data-bind="css: { 'loading': isLoading } ">
+    <body class="loading">
         <main>
             <h1><i class="codicon codicon-link"></i>&nbsp;{{TITLE}}</h1>
             <a type="button" id="help-button" href="https://github.com/leandrosimoes/project-urls-manager-vscode-extension" target="_blank"><i class="codicon codicon-question"></i>&nbsp;Need Help?</a>
@@ -24,17 +24,15 @@
                     <i class="codicon codicon-eye" data-bind="click: toggleShowIgnore" title="Show Ignored URLs"></i>
                     <i class="codicon codicon-eye-closed" data-bind="click: toggleShowIgnore" title="Hide Ignored URLs"></i>
                 </div>
-                <div class="toggle-theme-control control">
-                    <div class="toggle"></div>
-                    <i data-bind="click: toggleTheme" title="Switch to Light Theme">🌞</i>
-                    <i data-bind="click: toggleTheme" title="Switch to Dark Theme">🌙</i>
-                </div>
             </div>
             <div id="errors" class="hidden"></div>
-            <div class="no-urls" data-bind="visible: !TemUrls()">
+            <div id="loading-message" data-bind="visible: isLoading">
+                <span><i class="codicon codicon-sync spinning"></i>&nbsp;Loading ...</span>
+            </div>
+            <div id="no-urls" data-bind="visible: ShowNoURLsMessage">
                 <span>🙁 No URLs found</span>
             </div>
-            <div id="urls-list" data-bind="foreach: urls, visible: TemUrls">
+            <div id="urls-list" data-bind="foreach: urls, visible: ShowURLsList">
                 <div data-bind="visible: show">
                     <div class="url-domain" data-bind="text: host, visible: showDomain"></div>
                     <div class="url-wrapper" data-bind="css: { 'ignored': isIgnored }">
@@ -71,7 +69,7 @@
                     </div>
                 </div>
             </div>
-            <a type="button" id="github-button" href="https://github.com/leandrosimoes" target="_blank">Made with <i class="codicon codicon-heart"></i> by Leandro Simões</a>
+            <a type="button" id="github-button" href="https://github.com/leandrosimoes" target="_blank" data-bind="visible: !isLoading()">Made with <i class="codicon codicon-heart"></i> by Leandro Simões</a>
 
             {{SCRIPTS}}
         </main>

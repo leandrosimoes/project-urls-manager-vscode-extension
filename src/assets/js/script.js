@@ -9,7 +9,6 @@ document.addEventListener('readystatechange', () => {
         START_LOADING: 'START_LOADING',
         STOP_LOADING: 'STOP_LOADING',
         SAVE_URL_DESCRIPTION: 'SAVE_URL_DESCRIPTION',
-        TOGGLE_THEME: 'TOGGLE_THEME',
         TOGGLE_SHOW_IGNORED: 'TOGGLE_SHOW_IGNORED',
         STAR: 'STAR',
         UNSTAR: 'UNSTAR',
@@ -56,8 +55,11 @@ document.addEventListener('readystatechange', () => {
         })
 
         // computeds
-        this.TemUrls = ko.computed(() => {
-            return this.urls().filter((url) => url.show()).length > 0
+        this.ShowNoURLsMessage = ko.computed(() => {
+            return this.urls().filter((url) => url.show()).length === 0 && !this.isLoading()
+        })
+        this.ShowURLsList = ko.computed(() => {
+            return this.urls().filter((url) => url.show()).length > 0 && !this.isLoading()
         })
 
         // functions
@@ -70,9 +72,6 @@ document.addEventListener('readystatechange', () => {
                 type: ActionTypes.SAVE_URL_DESCRIPTION,
                 url: ko.mapping.toJS(url),
             })
-        }
-        this.toggleTheme = () => {
-            vscode.postMessage({ type: ActionTypes.TOGGLE_THEME })
         }
         this.copyToClipboard = (url) => {
             if (!url) {
