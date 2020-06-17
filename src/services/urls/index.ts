@@ -1,7 +1,7 @@
 // eslint-disable-next-line import/no-unresolved
 import * as vscode from 'vscode'
 import { readdirSync, readFileSync, statSync } from 'fs'
-import { extname } from 'path'
+import { extname, join } from 'path'
 import { IURL } from './interfaces'
 import URL from './models'
 
@@ -32,7 +32,7 @@ async function searchForWorkspaceURLs(rootPath = vscode.workspace.rootPath) {
 
         const files = readdirSync(rootPath)
         await asyncForEach(files, async (file: string) => {
-            const filePath = `${rootPath}\\${file}`
+            const filePath = join(rootPath, file)
             const stat = statSync(filePath)
 
             if (ignorePaths.indexOf(file) > -1) {
