@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.1]
 ### Fixes
-- Fixed get URLs error on Mac OS
+- Fixed error on getting URLs on Mac OS
 
 ## [1.2.0]
 ### Features
