@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 - You can see more about what's going on [here](https://github.com/leandrosimoes/project-urls-manager-vscode-extension/issues), even open a new issue with your sugestions/errors.
 
+
+## [1.2.2]
+### Changes
+- Add `package-lock.json` and `yarn.lock` files to be ignored into the default `ignorePaths` settings
+
+
 ## [1.2.1]
 ### Fixes
 - Fixed error on getting URLs on Mac OS
