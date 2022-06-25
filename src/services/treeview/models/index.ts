@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-unresolved
 import * as vscode from 'vscode'
 import { IURL } from '../../urls/interfaces'
 import { EURLTreeItemType, EProjectURLsTreeViewType } from '../enums'

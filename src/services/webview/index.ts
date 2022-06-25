@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-unresolved
 import * as vscode from 'vscode'
 import { join, extname } from 'path'
 import { readFileSync, existsSync, readdirSync } from 'fs'
@@ -253,7 +252,10 @@ const sendFavicons = async () => {
 
         context.workspaceState.update('urls', existentURLs)
 
-        WEBVIEW_PANNEL.webview.postMessage({ urls: existentURLs, type: EActionTypes.URL_ICON })
+        WEBVIEW_PANNEL.webview.postMessage({
+            urls: existentURLs,
+            type: EActionTypes.URL_ICON,
+        })
     } catch (error) {
         logger.log({ message: `sendFavicons ERROR: ${error.message}` })
     }

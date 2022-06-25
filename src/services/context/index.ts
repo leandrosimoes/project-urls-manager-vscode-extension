@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-unresolved
 import * as vscode from 'vscode'
 
 let CONTEXT: vscode.ExtensionContext | undefined

@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-unresolved
 import * as vscode from 'vscode'
 
 import { EXTENSION_NAME } from '../../constants'
