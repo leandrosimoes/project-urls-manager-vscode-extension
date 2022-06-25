@@ -14,9 +14,7 @@ export class ProjectURLsTreeItem extends vscode.TreeItem {
         super(label, collapsibleState)
     }
 
-    get tooltip(): string {
-        return 'Click to open the URL in browswer'
-    }
+    tooltip = 'Click to open the URL in browswer'
 
     iconPath =
         this.collapsibleState === vscode.TreeItemCollapsibleState.Collapsed
@@ -31,7 +29,8 @@ export class ProjectURLsTreeItem extends vscode.TreeItem {
 }
 
 export class ProjectURLsTreeViewDataProvider
-    implements vscode.TreeDataProvider<ProjectURLsTreeItem> {
+    implements vscode.TreeDataProvider<ProjectURLsTreeItem>
+{
     private _type: EURLTreeItemType
 
     private _urls: IURL[]
@@ -102,10 +101,6 @@ export class ProjectURLsTreeView {
         logger.log({ message: `Start updating ${this._type} TreeView ...` })
 
         const urls = await getURLs(false, this._type === EProjectURLsTreeViewType.IGNORED)
-
-        if (this.instance) {
-            this.instance.dispose()
-        }
 
         let treeDataProvider: ProjectURLsTreeViewDataProvider | undefined
 
