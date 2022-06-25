@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-unresolved
 import * as vscode from 'vscode'
 
 import { EXTENSION_NAME } from './constants'
@@ -10,7 +9,7 @@ import { getInstance, openWebview } from './services/webview'
 import { setupTreeViews } from './services/treeview'
 
 export function activate(context: vscode.ExtensionContext) {
-    if (!vscode.workspace.rootPath) {
+    if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
         return
     }
 
@@ -35,7 +34,8 @@ export function activate(context: vscode.ExtensionContext) {
             })
         } else {
             const shouldShowIgnored =
-                context.workspaceState.get<boolean>('shouldShowIgnored') || false
+                context.workspaceState.get<boolean>('shouldShowIgnored') ||
+                false
             syncURLs(shouldShowIgnored).then(() => {
                 setupTreeViews().then((treeviews) => {
                     treeviews.IGNORED_TREEVIEW.updateTreviewData()
@@ -52,7 +52,8 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Syncing URLS on start
     ;(async () => {
-        const shouldShowIgnored = context.workspaceState.get<boolean>('shouldShowIgnored') || false
+        const shouldShowIgnored =
+            context.workspaceState.get<boolean>('shouldShowIgnored') || false
         await syncURLs(shouldShowIgnored)
         const treeViews = await setupTreeViews()
 

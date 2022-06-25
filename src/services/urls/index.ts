@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-unresolved
 import * as vscode from 'vscode'
 import { readdirSync, readFileSync, statSync } from 'fs'
 import { extname, join } from 'path'

@@ -4,22 +4,22 @@
 
 # Project URLs Manager
 
-VS Code Extension to manage all urls found inside the workspace files
+VS Code Extension to manage all URLs found inside the workspace files
 
 ## Features
 
-This is how the Project URLs Manager looks like when open:
+This is what the Project URLs Manager looks like when open:
 
 ![URLs Manager](https://raw.githubusercontent.com/leandrosimoes/project-urls-manager-vscode-extension/master/docs/manager.png)
 
-* **Search Input**: Search for URLs on list
+* **Search Input**: Input Search for URLs on the list
 * **Ignored URLs Visibility Toggle** Toggle whenever you want to see or not the ignored URLs on the list
 * **URL Actions**: Copy to Clipboard, Ignore, Restore, Star and Unstar actions
 * **Ignored URL**: When ignored URLs are visible, they get a little bit of opacity
 * **URL Address**: Click at the URL address to open on your browser
-* **URL Description**: Add a quick description about the URL
-* **Status Bar/Open Button**: See how many URLs was found on your project and click to open the manager window
-* **Treview**: Pannels that shows all URLs separated by status. You can double click them to open on browser.
+* **URL Description**: Add a quick description of the URL
+* **Status Bar/Open Button**: See how many URLs were found on your project and click to open the manager window
+* **Treview**: Pannels that shows all URLs separated by status. You can double-click them to open on the browser.
 
 ## Extension Settings
 
@@ -27,9 +27,9 @@ Manage the extension settings
 
 ![Settings UI](https://raw.githubusercontent.com/leandrosimoes/project-urls-manager-vscode-extension/master/docs/settings-ui.png)
 
-1. Comma separated of valid file extensions to be considered on sync. (E.g. `'.js,.css,.html'`)
-2. Comma separated domains to be ignored on sync. (E.g. `'google.con,facebook.com'`)
-3. Comma separated paths to be ignored on sync. (E.g. `'node_modules,src/your-file.js'`)
+1. A comma-separated string of valid file extension types that should be considered on sync. (E.g. `'.js,.css,.html'`)
+2. A comma-separated string of domains to be ignored on sync. (E.g. `'google.con,facebook.com'`)
+3. A comma-separated string of paths to be ignored on sync. (E.g. `'node_modules,src/your-file.js'`)
 
 The extension settings on VS Code JSON settings file are:
 
@@ -39,11 +39,11 @@ The extension settings on VS Code JSON settings file are:
 
 ## Commands
 
-There's some commands available for the extension too:
+There are some commands available for the extension too:
 
 ![Settings UI](https://raw.githubusercontent.com/leandrosimoes/project-urls-manager-vscode-extension/master/docs/commands.png)
 
-1. This command is used just by treeview, so if you execute it nothing is gonna happend
+1. This command is used just by tree view, so if you execute it nothing is gonna happen
 2. Show Project URLs Manager TreeView List
 3. Show Project URLs Manager TreeView List and focus on Ignored pannel
 4. Search for URLs in all files, respecting the `ignorePaths`, `ignoreDomains` and `extensionsList` provided configurations
@@ -54,4 +54,4 @@ There's some commands available for the extension too:
 
 ## Release Notes
 
-You can see all change log [here](https://github.com/leandrosimoes/project-urls-manager-vscode-extension/blob/develop/CHANGELOG.md).
+You can see all change logs [here](https://github.com/leandrosimoes/project-urls-manager-vscode-extension/blob/develop/CHANGELOG.md).

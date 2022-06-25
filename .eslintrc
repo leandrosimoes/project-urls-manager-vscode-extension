@@ -2,23 +2,20 @@
     "root": true,
     "globals": {
         "ko": true,
-        "window": true,
         "acquireVsCodeApi": true
     },
-    "extends": [
-        "defaults",
-        "airbnb-typescript-prettier",
-        "prettier"
-    ],
+    "env": {
+      "browser": true,
+      "es2021": true
+    },
+    "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
-        "ecmaVersion": 6,
-        "sourceType": "module"
+        "ecmaVersion": 12,
+        "sourceType": "module",
+        "project": ["./tsconfig.json"]
     },
-    "plugins": [
-      "prettier",
-      "@typescript-eslint"
-    ],
+    "plugins": ["@typescript-eslint"],
     "rules": {
         "new-cap": "warn",
         "radix": 0,
@@ -77,15 +74,6 @@
                 "selector": "typeParameter", "format": ["PascalCase"], "prefix": ["T"] 
             }
         ],
-        "@typescript-eslint/no-empty-function": 0,
-        "prettier/prettier": [
-            "error",
-            {
-                "trailingComma": "es5",
-                "singleQuote": true,
-                "printWidth": 100,
-                "endOfLine": "auto"
-            }
-        ]
+        "@typescript-eslint/no-empty-function": 0
     }
 }
