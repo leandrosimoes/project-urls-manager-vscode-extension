@@ -10,13 +10,13 @@
 		"theme": "dark"
 	},
 	"engines": {
-		"vscode": "^1.45.0"
+		"vscode": "^1.68.0"
 	},
 	"categories": [
 		"Other"
 	],
 	"activationEvents": [
-		"*"
+		"onStartupFinished"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -116,6 +116,7 @@
 		"@types/vscode": "^1.68.0",
 		"@typescript-eslint/eslint-plugin": "^5.29.0",
 		"@typescript-eslint/parser": "^5.29.0",
+		"@vscode/test-electron": "^2.1.4",
 		"eslint": "^8.18.0",
 		"eslint-config-prettier": "^8.5.0",
 		"glob": "^8.0.3",

@@ -1,6 +1,6 @@
 export const waitForXSeconds = (seconds = 1) => {
     return new Promise((resolve) => {
-        setTimeout(resolve, seconds * 1000)
+        setTimeout(() => resolve(true), seconds * 1000)
     })
 }
 
