@@ -1652,7 +1652,7 @@ optionator@^0.9.1:
     type-check "^0.4.0"
     word-wrap "^1.2.3"
 
-page-icon@^0.3.0:
+page-icon@^0.3.4:
   version "0.3.4"
   resolved "https://registry.yarnpkg.com/page-icon/-/page-icon-0.3.4.tgz#e6b532605ceaf3f517a9c6febc9f5aa1d7cf42b8"
   integrity sha512-Kmvul7wiiL2xAXbzK5Oh3Ftwjd8DMSNV9SFHpUbLLCdtEL+Be0nczMPRsIRSPL/nDCmgd/FzT/20gmvfuPez3A==
