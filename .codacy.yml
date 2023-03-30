@@ -1,6 +1,6 @@
 exclude_paths:
-  - '.github/**'
-  - '.vscode/**'
-  - 'docs/**'
+  - '.github/**/*'
+  - '.vscode/**/*'
+  - 'docs/**/*'
   - '**.md'
-  - 'src/assets/**'
+  - 'src/assets/**/*'
