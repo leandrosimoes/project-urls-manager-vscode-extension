@@ -1,6 +1,7 @@
 ![URLs Manager](https://raw.githubusercontent.com/leandrosimoes/project-urls-manager-vscode-extension/master/docs/icon-128.png)
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/907e5f86db67459e81d3bccba521b6ba)](https://www.codacy.com/gh/leandrosimoes/project-urls-manager-vscode-extension/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=leandrosimoes/project-urls-manager-vscode-extension&amp;utm_campaign=Badge_Grade)
+[![Build And Deploy 🧬🚀](https://github.com/leandrosimoes/project-urls-manager-vscode-extension/actions/workflows/publish.yml/badge.svg)](https://github.com/leandrosimoes/project-urls-manager-vscode-extension/actions/workflows/publish.yml)
 
 # Project URLs Manager
 
