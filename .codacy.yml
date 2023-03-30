@@ -3,3 +3,4 @@ exclude_paths:
   - '.vscode/**'
   - 'docs/**'
   - '**.md'
+  - 'src/assets/**'
