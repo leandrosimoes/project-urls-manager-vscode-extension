@@ -128,7 +128,7 @@
 		"vscode-test": "^1.6.1"
 	},
 	"dependencies": {
-		"page-icon": "^0.3.4"
+		"page-icon": "^0.4.0"
 	},
 	"license": "SEE LICENSE IN LICENSE.txt",
 	"bugs": {
