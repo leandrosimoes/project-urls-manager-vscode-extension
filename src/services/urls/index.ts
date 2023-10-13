@@ -48,32 +48,34 @@ async function searchForWorkspaceURLs(rootPath = vscode.workspace.rootPath) {
 
                 const content = readFileSync(filePath).toString()
                 const lines = content.split('\n')
-                const urlsFound = content.match(
-                    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g
-                )
 
-                if (urlsFound && urlsFound.length > 0) {
-                    await asyncForEach(urlsFound, (url: string) => {
-                        const lineNumber = lines.findIndex((line) => line.indexOf(url) > -1)
-                        const line = lineNumber > -1 ? lines[lineNumber] : ''
-                        const columnNumber = line.indexOf(url)
-                        const href = cleanURL(url)
-                        const urlInstance = new URL(href, filePath, lineNumber, columnNumber).url
-                        urlInstance.hasFavicon = false
-
-                        if (
-                            urlInstance &&
-                            urlInstance.host &&
-                            ignoreDomains.indexOf(urlInstance.host) === -1
-                        ) {
-                            URLS.push(urlInstance)
-                        }
-                    })
-
-                    logger.log({ message: `${urlsFound.length} URL(s) found in "${filePath}".` })
-                } else {
-                    logger.log({ message: `No URL found in "${filePath}".` })
-                }
+                await asyncForEach(lines, async (line: string, lineNumber: number) => {
+                    const urlsFound = line.match(
+                        /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g
+                    )
+    
+                    if (urlsFound && urlsFound.length > 0) {
+                        await asyncForEach(urlsFound, (url: string) => {
+                            const columnNumber = line.indexOf(url)
+                            const href = cleanURL(url)
+                            const urlInstance = new URL(href, filePath, lineNumber, columnNumber).url
+                            urlInstance.hasFavicon = false
+    
+                            if (
+                                urlInstance &&
+                                urlInstance.host &&
+                                ignoreDomains.indexOf(urlInstance.host) === -1
+                            ) {
+                                URLS.push(urlInstance)
+                            }
+                        })
+    
+                        logger.log({ message: `${urlsFound.length} URL(s) found in "${filePath}".` })
+                    } else {
+                        logger.log({ message: `No URL found in "${filePath}".` })
+                    }
+                    
+                })
             } else {
                 await searchForWorkspaceURLs(filePath)
             }
@@ -109,7 +111,7 @@ export const syncURLs = async (showIgnored: boolean) => {
 
         // ADD URL TO THE existentURLs IF NOT ALREADY EXISTS
         await asyncForEach(URLS, async (urlFound: IURL) => {
-            const existent = existentURLs.find((ex) => ex.href === urlFound.href)
+            const existent = existentURLs.find((ex) => ex.href === urlFound.href && ex.lineNumber === urlFound.lineNumber && ex.columnNumber === urlFound.columnNumber && ex.filePath === urlFound.filePath)
             if (!existent && urlFound.host) {
                 existentURLs.push(urlFound)
             }
@@ -117,7 +119,7 @@ export const syncURLs = async (showIgnored: boolean) => {
 
         // REMOVE FROM existentURLs URLs THAT WAS NOT FOUND IN FILES ANYMORE
         await asyncForEach(existentURLs, async (existent: IURL) => {
-            const urlFound = URLS.find((ex) => ex.href === existent.href)
+            const urlFound = URLS.find((ex) => ex.href === existent.href && ex.lineNumber === existent.lineNumber && ex.columnNumber === existent.columnNumber && ex.filePath === existent.filePath)
             if (!urlFound) {
                 existentURLs = existentURLs.filter((ex) => ex.href !== existent.href)
             }
