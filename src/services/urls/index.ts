@@ -47,14 +47,18 @@ async function searchForWorkspaceURLs(rootPath = vscode.workspace.rootPath) {
                 }
 
                 const content = readFileSync(filePath).toString()
+                const lines = content.split('\n')
                 const urlsFound = content.match(
                     /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g
                 )
 
                 if (urlsFound && urlsFound.length > 0) {
                     await asyncForEach(urlsFound, (url: string) => {
+                        const lineNumber = lines.findIndex((line) => line.indexOf(url) > -1)
+                        const line = lineNumber > -1 ? lines[lineNumber] : ''
+                        const columnNumber = line.indexOf(url)
                         const href = cleanURL(url)
-                        const urlInstance = new URL(href).url
+                        const urlInstance = new URL(href, filePath, lineNumber, columnNumber).url
                         urlInstance.hasFavicon = false
 
                         if (
