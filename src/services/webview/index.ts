@@ -12,7 +12,7 @@ import {
 } from '../urls'
 import { EXTENSION_NAME, EXTENSION_ID } from '../../constants'
 import { getContext } from '../context'
-import { asyncForEach, waitForXSeconds } from '../../utils'
+import { waitForXSeconds } from '../../utils'
 import { IURL } from '../urls/interfaces'
 import { getAssetsPaths } from '../assets'
 import { IFavicon } from './interfaces'
@@ -71,14 +71,14 @@ const getStylesToInject = async (): Promise<string[] | undefined> => {
         }
 
         const styleFiles = readdirSync(assetsPaths.css)
-        await asyncForEach(styleFiles, async (file: string) => {
+        for (const file of styleFiles) {
             if (extname(file) === '.css' && WEBVIEW_PANNEL) {
                 const filePath = WEBVIEW_PANNEL.webview.asWebviewUri(
                     vscode.Uri.file(join(assetsPaths.css, file))
                 )
                 styles.push(`<link rel="stylesheet" href="${filePath}">`)
             }
-        })
+        }
 
         return styles
     } catch (error) {
@@ -107,7 +107,7 @@ const getScriptsToInject = async (): Promise<string[] | undefined> => {
         }
 
         const scriptFiles = readdirSync(assetsPaths.js)
-        await asyncForEach(scriptFiles, async (file: string) => {
+        for (const file of scriptFiles) {
             if (extname(file) === '.js' && WEBVIEW_PANNEL) {
                 const index = order.indexOf(file)
                 const filePath = WEBVIEW_PANNEL.webview.asWebviewUri(
@@ -121,7 +121,7 @@ const getScriptsToInject = async (): Promise<string[] | undefined> => {
                     scripts.push(script)
                 }
             }
-        })
+        }
 
         return scripts
     } catch (error) {
@@ -211,12 +211,12 @@ const sendURLs = async (forceSync: boolean, shouldShowIgnored: boolean) => {
         const urls = await getURLs(forceSync, shouldShowIgnored)
         const fallbackFaviconPath = vscode.Uri.file(join(assetsPaths.img, 'fallback-favicon.png'))
 
-        await asyncForEach(urls, async (url: IURL) => {
+        for (const url of urls) {
             if (!url.hasFavicon && WEBVIEW_PANNEL) {
                 url.favicon = WEBVIEW_PANNEL.webview.asWebviewUri(fallbackFaviconPath).toString()
                 url.hasFavicon = false
             }
-        })
+        }
 
         WEBVIEW_PANNEL.webview.postMessage({ urls, type: EActionTypes.URL })
     } catch (error) {
@@ -240,7 +240,7 @@ const sendFavicons = async () => {
             return
         }
 
-        await asyncForEach(existentURLs, async (url: IURL) => {
+        for (const url of existentURLs) {
             try {
                 if (!url.hasFavicon) {
                     const favicon: IFavicon = await pageIcon(`${url.protocol}//${url.hostname}`)
@@ -248,7 +248,7 @@ const sendFavicons = async () => {
                     url.hasFavicon = true
                 }
             } catch (error) {}
-        })
+        }
 
         context.workspaceState.update('urls', existentURLs)
 

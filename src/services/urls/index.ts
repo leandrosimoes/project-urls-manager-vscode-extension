@@ -4,7 +4,6 @@ import { extname, join } from 'path'
 import { IURL } from './interfaces'
 import URL from './models'
 
-import { asyncForEach } from '../../utils'
 import { logger } from '../logger'
 import { getConfigurations } from '../configurations'
 import { getContext } from '../context'
@@ -30,7 +29,7 @@ async function searchForWorkspaceURLs(rootPath = vscode.workspace.rootPath) {
         }
 
         const files = readdirSync(rootPath)
-        await asyncForEach(files, async (file: string) => {
+        for (const file of files) {
             const filePath = join(rootPath, file)
             const stat = statSync(filePath)
 
@@ -49,13 +48,14 @@ async function searchForWorkspaceURLs(rootPath = vscode.workspace.rootPath) {
                 const content = readFileSync(filePath).toString()
                 const lines = content.split('\n')
 
-                await asyncForEach(lines, async (line: string, lineNumber: number) => {
+                for (const line of lines) {
+                    const lineNumber = lines.indexOf(line)
                     const urlsFound = line.match(
                         /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/g
                     )
     
                     if (urlsFound && urlsFound.length > 0) {
-                        await asyncForEach(urlsFound, (url: string) => {
+                        for (const url of urlsFound) {
                             const columnNumber = line.indexOf(url)
                             const href = cleanURL(url)
                             const urlInstance = new URL(href, filePath, lineNumber, columnNumber).url
@@ -68,18 +68,17 @@ async function searchForWorkspaceURLs(rootPath = vscode.workspace.rootPath) {
                             ) {
                                 URLS.push(urlInstance)
                             }
-                        })
+                        }
     
                         logger.log({ message: `${urlsFound.length} URL(s) found in "${filePath}".` })
                     } else {
                         logger.log({ message: `No URL found in "${filePath}".` })
                     }
-                    
-                })
+                }
             } else {
                 await searchForWorkspaceURLs(filePath)
             }
-        })
+        }
 
         return URLS
     } catch (error) {
@@ -110,20 +109,20 @@ export const syncURLs = async (showIgnored: boolean) => {
         URLS = (await searchForWorkspaceURLs(undefined)) || []
 
         // ADD URL TO THE existentURLs IF NOT ALREADY EXISTS
-        await asyncForEach(URLS, async (urlFound: IURL) => {
+        for (const urlFound of URLS) {
             const existent = existentURLs.find((ex) => ex.href === urlFound.href && ex.lineNumber === urlFound.lineNumber && ex.columnNumber === urlFound.columnNumber && ex.filePath === urlFound.filePath)
             if (!existent && urlFound.host) {
                 existentURLs.push(urlFound)
             }
-        })
+        }
 
         // REMOVE FROM existentURLs URLs THAT WAS NOT FOUND IN FILES ANYMORE
-        await asyncForEach(existentURLs, async (existent: IURL) => {
+        for (const existent of existentURLs) {
             const urlFound = URLS.find((ex) => ex.href === existent.href && ex.lineNumber === existent.lineNumber && ex.columnNumber === existent.columnNumber && ex.filePath === existent.filePath)
             if (!urlFound) {
                 existentURLs = existentURLs.filter((ex) => ex.href !== existent.href)
             }
-        })
+        }
 
         context.workspaceState.update('urls', existentURLs)
 
@@ -188,11 +187,11 @@ export const saveURLDescription = async (url: IURL) => {
             return
         }
 
-        await asyncForEach(urlsFound, async (found: IURL) => {
+        for (const found of urlsFound) {
             if (found.href === url.href) {
                 found.description = url.description
             }
-        })
+        }
 
         context.workspaceState.update('urls', urlsFound)
     } catch (error) {
@@ -210,11 +209,11 @@ export const restoreURLFromIgnoreList = async (url: IURL) => {
     try {
         const existentURLs: IURL[] = context.workspaceState.get<IURL[]>('urls') || []
 
-        await asyncForEach(existentURLs, async (existent: IURL) => {
+        for (const existent of existentURLs) {
             if (existent.href === url.href) {
                 existent.isIgnored = false
             }
-        })
+        }
 
         context.workspaceState.update('urls', existentURLs)
     } catch (error) {
@@ -232,12 +231,12 @@ export const addURLToIgnoreList = async (url: IURL) => {
     try {
         const existentURLs: IURL[] = context.workspaceState.get<IURL[]>('urls') || []
 
-        await asyncForEach(existentURLs, async (existent: IURL) => {
+        for (const existent of existentURLs) {
             if (existent.href === url.href) {
                 existent.isIgnored = true
                 existent.isStarred = false
             }
-        })
+        }
 
         context.workspaceState.update('urls', existentURLs)
     } catch (error) {
@@ -255,11 +254,11 @@ export const restoreURLFromStarredList = async (url: IURL) => {
     try {
         const existentURLs: IURL[] = context.workspaceState.get<IURL[]>('urls') || []
 
-        await asyncForEach(existentURLs, async (existent: IURL) => {
+        for (const existent of existentURLs) {
             if (existent.href === url.href) {
                 existent.isStarred = false
             }
-        })
+        }
 
         context.workspaceState.update('urls', existentURLs)
     } catch (error) {
@@ -277,12 +276,12 @@ export const addURLToStarredList = async (url: IURL) => {
     try {
         const existentURLs: IURL[] = context.workspaceState.get<IURL[]>('urls') || []
 
-        await asyncForEach(existentURLs, async (existent: IURL) => {
+        for (const existent of existentURLs) {
             if (existent.href === url.href) {
                 existent.isStarred = true
                 existent.isIgnored = false
             }
-        })
+        }
 
         context.workspaceState.update('urls', existentURLs)
     } catch (error) {
