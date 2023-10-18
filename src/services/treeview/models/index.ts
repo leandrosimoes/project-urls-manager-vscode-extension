@@ -93,10 +93,10 @@ export class ProjectURLsTreeView {
         this._type = type
     }
 
-    async updateTreviewData() {
+    async updateTreviewData(forceSync = false) {
         logger.log({ message: `Start updating ${this._type} TreeView ...` })
 
-        const urls = await getURLs(false, this._type === EProjectURLsTreeViewType.IGNORED)
+        const urls = await getURLs(forceSync, this._type === EProjectURLsTreeViewType.IGNORED)
 
         let treeDataProvider: ProjectURLsTreeViewDataProvider | undefined
 

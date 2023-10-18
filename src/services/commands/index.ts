@@ -58,8 +58,8 @@ export const clearCache = vscode.commands.registerCommand(ECommands.CLEAR_CACHE,
     syncURLs(shouldShowIgnored)
 
     getTreeViews().then((treeviews) => {
-        treeviews.STARRED_TREEVIEW.updateTreviewData()
-        treeviews.NORMAL_TREEVIEW.updateTreviewData()
-        treeviews.IGNORED_TREEVIEW.updateTreviewData()
+        treeviews.STARRED_TREEVIEW.updateTreviewData(true)
+        treeviews.NORMAL_TREEVIEW.updateTreviewData(true)
+        treeviews.IGNORED_TREEVIEW.updateTreviewData(true)
     })
 })
