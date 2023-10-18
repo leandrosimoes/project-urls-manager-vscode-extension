@@ -22,6 +22,10 @@ export class ProjectURLsTreeItem extends vscode.TreeItem {
             : new vscode.ThemeIcon('link')
 
     contextValue = this.contextValueId
+
+    tooltip = this.sourceFilePath 
+        ? `${this.sourceFilePath}:${this.sourceFileLineNumber}:${this.sourceFileColumnNumber}`
+        : this.label
 }
 
 export class ProjectURLsTreeViewDataProvider
