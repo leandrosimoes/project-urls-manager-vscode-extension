@@ -35,14 +35,14 @@ async function searchForWorkspaceURLs(rootPath = vscode.workspace.rootPath) {
 
             if (ignorePaths.indexOf(file) > -1) {
                 logger.log({ message: `File ignored: '${file}'` })
-                return
+                continue
             }
 
             if (!stat.isDirectory()) {
                 const fileExtension = extname(file)
                 if (extensionsList.length > 0 && extensionsList.indexOf(fileExtension) === -1) {
                     logger.log({ message: `File extension ignored: '${file}'` })
-                    return
+                    continue
                 }
 
                 const content = readFileSync(filePath).toString()
