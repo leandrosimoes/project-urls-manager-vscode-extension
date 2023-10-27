@@ -4,7 +4,7 @@ import { IURL } from '../interfaces'
 export default class URL {
     private _url: IURL
 
-    constructor(url: string) {
+    constructor(url: string, filePath: string, lineNumber: number, columnNumber: number) {
         /* eslint-disable-next-line no-underscore-dangle */
         this._url = {
             ...parse(url),
@@ -14,6 +14,9 @@ export default class URL {
             hasFavicon: false,
             description: '',
             isStarred: false,
+            filePath,
+            lineNumber,
+            columnNumber,
         }
     }
 

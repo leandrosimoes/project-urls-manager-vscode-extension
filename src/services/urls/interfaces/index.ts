@@ -7,4 +7,7 @@ export interface IURL extends Url {
     isStarred: boolean
     hasFavicon: boolean
     description: string
+    filePath: string
+    lineNumber: number
+    columnNumber: number
 }
