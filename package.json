@@ -2,7 +2,7 @@
 	"name": "project-urls-manager",
 	"displayName": "Project URLs Manager",
 	"description": "Manage all urls of your project in one place",
-	"version": "1.2.4",
+	"version": "1.2.5",
 	"icon": "docs/icon-256.png",
 	"publisher": "Leandro",
 	"galleryBanner": {
@@ -46,15 +46,29 @@
 			},
 			{
 				"command": "projectURLsManager.sync",
-				"title": "Project URLs Manager: SYNC"
+				"title": "Project URLs Manager: Sync"
 			},
 			{
 				"command": "projectURLsManager.clearCache",
-				"title": "Project URLs Manager: CLEAR CACHE"
+				"title": "Project URLs Manager: Clear cache"
 			},
 			{
-				"command": "urlList.openURL",
-				"title": "Project URLs Manager: Open URL in Browswer"
+				"command": "urlList.openInBrowser",
+				"title": "See in browswer",
+				"icon": {
+					"light": "docs/browser-icon-black.svg",
+					"dark": "docs/browser-icon-white.svg"
+				},
+				"when": "view == starredList || view == normalList || view == ignoredList"
+			},
+			{
+				"command": "urlList.openURLFile",
+				"title": "See in file",
+				"icon": {
+					"light": "docs/file-icon-black.svg",
+					"dark": "docs/file-icon-white.svg"
+				},
+				"when": "view == starredList || view == normalList || view == ignoredList"
 			}
 		],
 		"viewsContainers": {
@@ -95,7 +109,21 @@
 				"view": "ignoredList",
 				"contents": "No ignored URLs found\n[SYNC](command:projectURLsManager.sync)"
 			}
-		]
+		],
+		"menus": {
+			"view/item/context": [
+				{
+					"command": "urlList.openInBrowser",
+					"group": "inline",
+					"when": "view == starredList || view == normalList || view == ignoredList"
+				},
+				{
+					"command": "urlList.openURLFile",
+					"group": "inline",
+					"when": "(view == starredList || view == normalList || view == ignoredList) && viewItem == child"
+				}
+			]
+		}
 	},
 	"scripts": {
 		"dev": "npm-run-all clean compile copy-assets watch",

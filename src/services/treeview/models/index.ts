@@ -3,28 +3,29 @@ import { IURL } from '../../urls/interfaces'
 import { EURLTreeItemType, EProjectURLsTreeViewType } from '../enums'
 import { getURLs } from '../../urls'
 import { logger } from '../../logger'
-import { ECommands } from '../../commands/enums'
 
 export class ProjectURLsTreeItem extends vscode.TreeItem {
     constructor(
         public readonly label: string,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState
+        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+        public readonly sourceFilePath: string,
+        public readonly sourceFileLineNumber: number,
+        public readonly sourceFileColumnNumber: number,
+        public readonly contextValueId: string | undefined
     ) {
         super(label, collapsibleState)
     }
 
-    tooltip = 'Click to open the URL in browswer'
-
     iconPath =
-        this.collapsibleState === vscode.TreeItemCollapsibleState.Collapsed
+        !this.contextValueId
             ? new vscode.ThemeIcon('globe')
             : new vscode.ThemeIcon('link')
 
-    command = {
-        command: ECommands.TREEVIEW_OPEN_URL,
-        arguments: [this.label],
-        title: '',
-    }
+    contextValue = this.contextValueId
+
+    tooltip = this.sourceFilePath 
+        ? `${this.sourceFilePath}:${this.sourceFileLineNumber}:${this.sourceFileColumnNumber}`
+        : this.label
 }
 
 export class ProjectURLsTreeViewDataProvider
@@ -65,13 +66,13 @@ export class ProjectURLsTreeViewDataProvider
             ].filter((h) => !!h)
 
             return hosts.map(
-                (h) => new ProjectURLsTreeItem(h, vscode.TreeItemCollapsibleState.Collapsed)
+                (h) => new ProjectURLsTreeItem(h, vscode.TreeItemCollapsibleState.Collapsed, '', -1, -1, undefined)
             )
         }
 
         return urls
             .filter((url) => url.host === host.replace(`${url.protocol}//`, ''))
-            .map((url) => new ProjectURLsTreeItem(url.href, vscode.TreeItemCollapsibleState.None))
+            .map((url) => new ProjectURLsTreeItem(url.href, vscode.TreeItemCollapsibleState.None, url.filePath, url.lineNumber, url.columnNumber, 'child'))
     }
 
     getTreeItem(element: ProjectURLsTreeItem): ProjectURLsTreeItem {
@@ -96,10 +97,10 @@ export class ProjectURLsTreeView {
         this._type = type
     }
 
-    async updateTreviewData() {
+    async updateTreviewData(forceSync = false) {
         logger.log({ message: `Start updating ${this._type} TreeView ...` })
 
-        const urls = await getURLs(false, this._type === EProjectURLsTreeViewType.IGNORED)
+        const urls = await getURLs(forceSync, this._type === EProjectURLsTreeViewType.IGNORED)
 
         let treeDataProvider: ProjectURLsTreeViewDataProvider | undefined
 

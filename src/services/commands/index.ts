@@ -5,9 +5,22 @@ import { openWebview } from '../webview'
 import { getContext } from '../context'
 import { ECommands } from './enums'
 import { getTreeViews } from '../treeview'
+import { ProjectURLsTreeItem } from '../treeview/models'
 
-export const openURL = vscode.commands.registerCommand(ECommands.TREEVIEW_OPEN_URL, (url) => {
-    vscode.env.openExternal(vscode.Uri.parse(url))
+vscode.commands.registerCommand(ECommands.TREEVIEW_OPEN_IN_BROWSER, (url) => {
+    vscode.env.openExternal(vscode.Uri.parse(url.label))
+})
+
+vscode.commands.registerCommand(ECommands.TREEVIEW_OPEN_IN_FILE, (url: ProjectURLsTreeItem) => {
+    if (url.sourceFilePath === undefined) return;
+    vscode.workspace.openTextDocument(url.sourceFilePath).then( document => {
+        vscode.window.showTextDocument(document).then( editor => {
+                const pos = new vscode.Position(url.sourceFileLineNumber, url.sourceFileColumnNumber);
+                editor.selection = new vscode.Selection(pos, pos);
+                editor.revealRange(new vscode.Range(pos, pos));
+            }
+        );
+    });
 })
 
 export const openCommand = vscode.commands.registerCommand(ECommands.OPEN, () => {
@@ -45,8 +58,8 @@ export const clearCache = vscode.commands.registerCommand(ECommands.CLEAR_CACHE,
     syncURLs(shouldShowIgnored)
 
     getTreeViews().then((treeviews) => {
-        treeviews.STARRED_TREEVIEW.updateTreviewData()
-        treeviews.NORMAL_TREEVIEW.updateTreviewData()
-        treeviews.IGNORED_TREEVIEW.updateTreviewData()
+        treeviews.STARRED_TREEVIEW.updateTreviewData(true)
+        treeviews.NORMAL_TREEVIEW.updateTreviewData(true)
+        treeviews.IGNORED_TREEVIEW.updateTreviewData(true)
     })
 })
