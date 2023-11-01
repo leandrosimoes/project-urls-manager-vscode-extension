@@ -9,7 +9,10 @@ import { getInstance, openWebview } from './services/webview'
 import { setupTreeViews } from './services/treeview'
 
 export function activate(context: vscode.ExtensionContext) {
-    if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
+    if (
+        !vscode.workspace.workspaceFolders ||
+        vscode.workspace.workspaceFolders.length === 0
+    ) {
         return
     }
 

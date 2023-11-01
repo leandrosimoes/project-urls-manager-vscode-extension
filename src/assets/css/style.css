@@ -20,6 +20,10 @@ body {
   }
 }
 
+i.rotate-horizontal {
+  transform: rotate(180deg);
+}
+
 i.spinning {
   animation: pam-spin .5s linear infinite;
 }
@@ -34,8 +38,7 @@ a {
   text-decoration: none;
 }
 
-a#help-button,
-a#github-button {
+a#help-button {
     margin: 10px 10px 10px 0;
 }
 
@@ -117,7 +120,7 @@ main {
   z-index: 9999;
 }
 
-html:not(.show-ignored) .toggle-ignore-control .toggle {
+.toggle-ignore-control .toggle:not(.show-ignored) {
   right: 5px;
 }
 
@@ -224,6 +227,65 @@ html:not(.show-ignored) .toggle-ignore-control .toggle {
   font-size: 25px;
   margin: 0 5px;
   cursor: pointer;
+}
+
+#pagination {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+#pagination i {
+    font-size: 20px;
+    margin: 0 5px;
+    cursor: pointer;
+    opacity: 0.9;
+}
+
+#pagination i:hover {
+    opacity: 1;
+}
+
+#pagination div.pages {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+#pagination div.pages div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin: 0 5px;
+    color: var(--vscode-editor-foreground);
+    background-color: var(--vscode-editorWidget-background);
+    border: 1px solid var(--vscode-text-input-border);
+    cursor: pointer;
+    opacity: 0.9;
+}
+
+#pagination div.pages div:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+
+#pagination div.pages div.active {
+    background-color: var(--vscode-editor-foreground);
+    color: var(--vscode-editor-background);
+    opacity: 1;
+}
+
+footer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* SCROLL */

@@ -2,7 +2,18 @@
 	"name": "project-urls-manager",
 	"displayName": "Project URLs Manager",
 	"description": "Manage all urls of your project in one place",
-	"version": "1.2.6",
+	"version": "1.3.0",
+	"scripts": {
+		"dev": "npm-run-all clean compile copy-assets watch",
+		"prod": "npm-run-all clean lint:fix compile copy-assets",
+		"vscode:prepublish": "npm run prod",
+		"compile": "tsc --project tsconfig.json",
+		"lint": "tsc --project tsconfig.json --noEmit && eslint src --ext ts",
+		"lint:fix": "tsc --project tsconfig.json --noEmit && eslint src --ext ts --fix",
+		"watch": "tsc --project tsconfig.json --watch",
+		"copy-assets": "ts-node copy-assets.ts",
+		"clean": "rimraf out/*"
+	},
 	"icon": "docs/icon-256.png",
 	"publisher": "Leandro",
 	"galleryBanner": {
@@ -55,19 +66,13 @@
 			{
 				"command": "urlList.openInBrowser",
 				"title": "See in browswer",
-				"icon": {
-					"light": "docs/browser-icon-black.svg",
-					"dark": "docs/browser-icon-white.svg"
-				},
+				"icon": "$(browser)",
 				"when": "view == starredList || view == normalList || view == ignoredList"
 			},
 			{
 				"command": "urlList.openURLFile",
 				"title": "See in file",
-				"icon": {
-					"light": "docs/file-icon-black.svg",
-					"dark": "docs/file-icon-white.svg"
-				},
+				"icon": "$(file-symlink-file)",
 				"when": "view == starredList || view == normalList || view == ignoredList"
 			}
 		],
@@ -124,17 +129,6 @@
 				}
 			]
 		}
-	},
-	"scripts": {
-		"dev": "npm-run-all clean compile copy-assets watch",
-		"prod": "npm-run-all clean lint:fix compile copy-assets",
-		"vscode:prepublish": "npm run prod",
-		"compile": "tsc --project tsconfig.json",
-		"lint": "tsc --project tsconfig.json --noEmit && eslint src --ext ts",
-		"lint:fix": "tsc --project tsconfig.json --noEmit && eslint src --ext ts --fix",
-		"watch": "tsc --project tsconfig.json --watch",
-		"copy-assets": "ts-node copy-assets.ts",
-		"clean": "rimraf out/*"
 	},
 	"devDependencies": {
 		"@types/glob": "^7.2.0",

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="{{SHOW_IGNORED}}">
+<html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,14 +15,15 @@
                 <div class="control">
                     <input 
                         id="search-input" 
-                        type="text" 
-                        data-bind="delayChangeInputCallback: delayChangeSearchInputCallbackOptions" 
+                        type="text"
+                        value="{{SEARCH_TEXT}}"
+                        data-bind="value: searchText, delayChangeInputCallback: delayChangeSearchInputCallbackOptions" 
                         placeholder="Type to search">
                 </div>
                 <div class="toggle-ignore-control control">
-                    <div class="toggle"></div>
-                    <i class="codicon codicon-eye" data-bind="click: toggleShowIgnore" title="Show Ignored URLs"></i>
-                    <i class="codicon codicon-eye-closed" data-bind="click: toggleShowIgnore" title="Hide Ignored URLs"></i>
+                    <div class="toggle{{SHOW_IGNORED}}" data-bind="css: { 'show-ignored': isShowingIgnored }"></div>
+                    <i class="codicon codicon-eye" data-bind="click: function() { toggleShowIgnore(true); }" title="Show Ignored URLs"></i>
+                    <i class="codicon codicon-eye-closed" data-bind="click: function() { toggleShowIgnore(false); }" title="Hide Ignored URLs"></i>
                 </div>
             </div>
             <div id="errors" class="hidden"></div>
@@ -69,9 +70,20 @@
                     </div>
                 </div>
             </div>
-            <a type="button" id="github-button" href="https://github.com/leandrosimoes" target="_blank" data-bind="visible: !isLoading()">Made with <i class="codicon codicon-heart"></i> by Leandro Simões</a>
+            <div id="pagination" data-bind="visible: ShowPagination">
+                <i class="codicon codicon-run-all rotate-horizontal" data-bind="click: firstPage" title="First page"></i>
+                <i class="codicon codicon-chevron-left" data-bind="click: prevPage" title="Previous page"></i>
+                <div class="pages" data-bind="foreach: pages">
+                    <div data-bind="click: function() { $root.selectPage(number); }, text: number, css: { active: number === $root.currentPage() }"></div>
+                </div>
+                <i class="codicon codicon-chevron-right" data-bind="click: nextPage" title="Next page"></i>
+                <i class="codicon codicon-run-all" data-bind="click: lastPage" title="Last page"></i>
+            </div>
 
             {{SCRIPTS}}
         </main>
+        <footer>
+            <a type="button" id="github-button" href="https://github.com/leandrosimoes" target="_blank" data-bind="visible: !isLoading()">Made with <i class="codicon codicon-heart"></i> by Leandro Simões</a>
+        </footer>
     </body>
 </html>

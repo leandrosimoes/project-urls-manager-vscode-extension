@@ -22,7 +22,7 @@ This is what the Project URLs Manager looks like when open:
 * **URL Address**: Click at the URL address to open on your browser
 * **URL Description**: Add a quick description of the URL
 * **Status Bar/Open Button**: See how many URLs were found on your project and click to open the manager window
-* **Treview**: Pannels that shows all URLs separated by status. You can double-click them to open on the browser.
+* **Treview**: Pannels that shows all URLs separated by status. Each item has two buttons, one to open the URL in the browser, and another to open the file source of the URL with the cursor positioned exactly where the URL was found.
 
 ## Extension Settings
 
