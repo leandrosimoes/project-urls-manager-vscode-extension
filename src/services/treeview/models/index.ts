@@ -16,14 +16,13 @@ export class ProjectURLsTreeItem extends vscode.TreeItem {
         super(label, collapsibleState)
     }
 
-    iconPath =
-        !this.contextValueId
-            ? new vscode.ThemeIcon('globe')
-            : new vscode.ThemeIcon('link')
+    iconPath = !this.contextValueId
+        ? new vscode.ThemeIcon('globe')
+        : new vscode.ThemeIcon('link')
 
     contextValue = this.contextValueId
 
-    tooltip = this.sourceFilePath 
+    tooltip = this.sourceFilePath
         ? `${this.sourceFilePath}:${this.sourceFileLineNumber}:${this.sourceFileColumnNumber}`
         : this.label
 }
@@ -66,20 +65,40 @@ export class ProjectURLsTreeViewDataProvider
             ].filter((h) => !!h)
 
             return hosts.map(
-                (h) => new ProjectURLsTreeItem(h, vscode.TreeItemCollapsibleState.Collapsed, '', -1, -1, undefined)
+                (h) =>
+                    new ProjectURLsTreeItem(
+                        h,
+                        vscode.TreeItemCollapsibleState.Collapsed,
+                        '',
+                        -1,
+                        -1,
+                        undefined
+                    )
             )
         }
 
         return urls
             .filter((url) => url.host === host.replace(`${url.protocol}//`, ''))
-            .map((url) => new ProjectURLsTreeItem(url.href, vscode.TreeItemCollapsibleState.None, url.filePath, url.lineNumber, url.columnNumber, 'child'))
+            .map(
+                (url) =>
+                    new ProjectURLsTreeItem(
+                        url.href,
+                        vscode.TreeItemCollapsibleState.None,
+                        url.filePath,
+                        url.lineNumber,
+                        url.columnNumber,
+                        'child'
+                    )
+            )
     }
 
     getTreeItem(element: ProjectURLsTreeItem): ProjectURLsTreeItem {
         return element
     }
 
-    getChildren(element?: ProjectURLsTreeItem | undefined): Thenable<ProjectURLsTreeItem[]> {
+    getChildren(
+        element?: ProjectURLsTreeItem | undefined
+    ): Thenable<ProjectURLsTreeItem[]> {
         if (!element) {
             return Promise.resolve(this._mapURLItems(this._urls))
         }
@@ -100,7 +119,12 @@ export class ProjectURLsTreeView {
     async updateTreviewData(forceSync = false) {
         logger.log({ message: `Start updating ${this._type} TreeView ...` })
 
-        const urls = await getURLs(forceSync, this._type === EProjectURLsTreeViewType.IGNORED)
+        const { urls } = await getURLs(
+            forceSync,
+            this._type === EProjectURLsTreeViewType.IGNORED,
+            -1,
+            ''
+        )
 
         let treeDataProvider: ProjectURLsTreeViewDataProvider | undefined
 

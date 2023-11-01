@@ -11,3 +11,7 @@ export interface IURL extends Url {
     lineNumber: number
     columnNumber: number
 }
+
+export interface IPage {
+    number: number
+}

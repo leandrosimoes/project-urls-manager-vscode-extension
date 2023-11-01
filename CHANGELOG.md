@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 - You can see more about what's going on [here](https://github.com/leandrosimoes/project-urls-manager-vscode-extension/issues), even open a new issue with your sugestions/errors.
 
+## [1.3.0]
+- Now the URLs browser has pagination that shows only 6 URLs per page. You can change the page by clicking on the pagination buttons at the bottom of the page.
+
+## [1.2.6]
+- Fixed problem where no URLs were found when some ignored pattern URLs exists.
+
+## [1.2.5]
+- Now the tree view shows two icon buttons, one to open the URL in the browser, and another to open the URL source file with the cursor exactly where the URL was found.
+
 ## [1.2.4]
 - Docs improvements
 

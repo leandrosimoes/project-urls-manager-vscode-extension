@@ -92,7 +92,11 @@ const getScriptsToInject = async (): Promise<string[] | undefined> => {
         logger.log({ message: 'Injecting script ...' })
 
         const context = getContext()
-        const order = ['knockout.min.js', 'knockout.mapping.min.js', 'script.js']
+        const order = [
+            'knockout.min.js',
+            'knockout.mapping.min.js',
+            'script.js',
+        ]
 
         if (!context) {
             return undefined
@@ -130,7 +134,11 @@ const getScriptsToInject = async (): Promise<string[] | undefined> => {
     }
 }
 
-const prepareHTML = async (html: string, shouldShowIgnored: boolean) => {
+const prepareHTML = async (
+    html: string,
+    shouldShowIgnored: boolean,
+    searchText: string
+) => {
     try {
         const context = getContext()
 
@@ -140,7 +148,12 @@ const prepareHTML = async (html: string, shouldShowIgnored: boolean) => {
 
         logger.log({ message: 'Preparing HTML ...' })
 
-        html = html.replace(/{{SHOW_IGNORED}}/g, shouldShowIgnored ? ' show-ignored' : '')
+        html = html.replace(
+            /{{SHOW_IGNORED}}/g,
+            shouldShowIgnored ? ' show-ignored' : ''
+        )
+
+        html = html.replace(/{{SEARCH_TEXT}}/g, searchText || '')
 
         const scripts = await getScriptsToInject()
 
@@ -166,7 +179,11 @@ const prepareHTML = async (html: string, shouldShowIgnored: boolean) => {
     }
 }
 
-export const getHTML = async (force = false, shouldShowIgnored: boolean) => {
+export const getHTML = async (
+    force = false,
+    shouldShowIgnoredStored: boolean,
+    searchText: string
+) => {
     try {
         if (!force) {
             return HTML
@@ -185,7 +202,11 @@ export const getHTML = async (force = false, shouldShowIgnored: boolean) => {
         const htmlFilePath = join(assetsPaths.root, 'index.html')
         let htmlFileContent = readFileSync(htmlFilePath).toString()
 
-        htmlFileContent = await prepareHTML(htmlFileContent, shouldShowIgnored)
+        htmlFileContent = await prepareHTML(
+            htmlFileContent,
+            shouldShowIgnoredStored,
+            searchText
+        )
 
         HTML = htmlFileContent
 
@@ -196,7 +217,12 @@ export const getHTML = async (force = false, shouldShowIgnored: boolean) => {
     }
 }
 
-const sendURLs = async (forceSync: boolean, shouldShowIgnored: boolean) => {
+const sendURLs = async (
+    forceSync: boolean,
+    shouldShowIgnored: boolean,
+    currentPage: number,
+    searchText: string
+) => {
     try {
         const context = getContext()
 
@@ -208,17 +234,31 @@ const sendURLs = async (forceSync: boolean, shouldShowIgnored: boolean) => {
 
         const assetsPaths = getAssetsPaths()
 
-        const urls = await getURLs(forceSync, shouldShowIgnored)
-        const fallbackFaviconPath = vscode.Uri.file(join(assetsPaths.img, 'fallback-favicon.png'))
+        const { urls, pages, totalPages } = await getURLs(
+            forceSync,
+            shouldShowIgnored,
+            currentPage,
+            searchText
+        )
+        const fallbackFaviconPath = vscode.Uri.file(
+            join(assetsPaths.img, 'fallback-favicon.png')
+        )
 
         for (const url of urls) {
             if (!url.hasFavicon && WEBVIEW_PANNEL) {
-                url.favicon = WEBVIEW_PANNEL.webview.asWebviewUri(fallbackFaviconPath).toString()
+                url.favicon = WEBVIEW_PANNEL.webview
+                    .asWebviewUri(fallbackFaviconPath)
+                    .toString()
                 url.hasFavicon = false
             }
         }
 
-        WEBVIEW_PANNEL.webview.postMessage({ urls, type: EActionTypes.URL })
+        WEBVIEW_PANNEL.webview.postMessage({
+            urls,
+            pages,
+            totalPages,
+            type: EActionTypes.URL,
+        })
     } catch (error) {
         logger.log({ message: `sendURLs ERROR: ${error.message}` })
     }
@@ -243,8 +283,12 @@ const sendFavicons = async () => {
         for (const url of existentURLs) {
             try {
                 if (!url.hasFavicon) {
-                    const favicon: IFavicon = await pageIcon(`${url.protocol}//${url.hostname}`)
-                    url.favicon = `data:${favicon.mime};base64, ${favicon.data.toString('base64')}`
+                    const favicon: IFavicon = await pageIcon(
+                        `${url.protocol}//${url.hostname}`
+                    )
+                    url.favicon = `data:${
+                        favicon.mime
+                    };base64, ${favicon.data.toString('base64')}`
                     url.hasFavicon = true
                 }
             } catch (error) {}
@@ -268,6 +312,21 @@ const updateTreeviews = async () => {
     treeviews.IGNORED_TREEVIEW.updateTreviewData()
 }
 
+const reloadWebView = async (
+    shouldShowIgnoredStored: boolean,
+    currentPage: number,
+    searchText: string
+) => {
+    const html = await getHTML(true, shouldShowIgnoredStored, searchText)
+    if (html && WEBVIEW_PANNEL) {
+        WEBVIEW_PANNEL.webview.html = html
+    }
+    await sendURLs(true, shouldShowIgnoredStored, currentPage, searchText)
+    await stopLoading()
+    await updateTreeviews()
+    await sendFavicons()
+}
+
 export const openWebview = async (ignoreFocus?: boolean) => {
     const context = getContext()
 
@@ -275,7 +334,8 @@ export const openWebview = async (ignoreFocus?: boolean) => {
         return
     }
 
-    const shouldShowIgnored = context.workspaceState.get<boolean>('shouldShowIgnored') || false
+    const shouldShowIgnored =
+        context.workspaceState.get<boolean>('shouldShowIgnored') || false
     const column = vscode.window.activeTextEditor
         ? vscode.window.activeTextEditor.viewColumn
         : undefined
@@ -300,136 +360,86 @@ export const openWebview = async (ignoreFocus?: boolean) => {
             WEBVIEW_PANNEL = undefined
         })
 
-        WEBVIEW_PANNEL.webview.onDidReceiveMessage((message: any) => {
-            const currentContext = getContext()
+        WEBVIEW_PANNEL.webview.onDidReceiveMessage(
+            async (message: {
+                type: EActionTypes
+                url: IURL
+                currentPage: number
+                isShowingIgnored: boolean
+                searchText: string
+            }) => {
+                const currentContext = getContext()
 
-            if (!currentContext) {
-                return
-            }
+                if (!currentContext) {
+                    return
+                }
 
-            const shouldShowIgnoredStored =
-                currentContext.workspaceState.get<boolean>('shouldShowIgnored') || false
-            const { url } = message
+                let shouldReloadWebView = false
 
-            switch (message.type) {
-                case EActionTypes.COPY:
-                    if (url.href) {
-                        vscode.env.clipboard.writeText(url.href)
-                        vscode.window.showInformationMessage(`'${url.href}' copied to clipboard`)
-                    }
+                const { url, isShowingIgnored, currentPage, searchText } =
+                    message
 
-                    break
+                switch (message.type) {
+                    case EActionTypes.SEARCH:
+                    case EActionTypes.CHANGE_PAGE:
+                        shouldReloadWebView = true
+                        break
+                    case EActionTypes.COPY:
+                        if (url.href) {
+                            vscode.env.clipboard.writeText(url.href)
+                            vscode.window.showInformationMessage(
+                                `'${url.href}' copied to clipboard`
+                            )
+                        }
+                        break
 
-                case EActionTypes.STAR:
-                    ;(async () => {
+                    case EActionTypes.STAR:
+                        shouldReloadWebView = true
                         await addURLToStarredList(url)
-                        const html = await getHTML(true, shouldShowIgnoredStored)
-                        if (html && WEBVIEW_PANNEL) {
-                            WEBVIEW_PANNEL.webview.html = html
-                        }
+                        break
 
-                        await sendURLs(true, shouldShowIgnoredStored)
-                        await stopLoading()
-                        await updateTreeviews()
-                        await sendFavicons()
-                    })()
-                    break
-
-                case EActionTypes.UNSTAR:
-                    ;(async () => {
+                    case EActionTypes.UNSTAR:
+                        shouldReloadWebView = true
                         await restoreURLFromStarredList(url)
-                        const html = await getHTML(true, shouldShowIgnoredStored)
-                        if (html && WEBVIEW_PANNEL) {
-                            WEBVIEW_PANNEL.webview.html = html
-                        }
+                        break
 
-                        await sendURLs(true, shouldShowIgnoredStored)
-                        await stopLoading()
-                        await updateTreeviews()
-                        await sendFavicons()
-                    })()
-                    break
-
-                case EActionTypes.IGNORE:
-                    ;(async () => {
+                    case EActionTypes.IGNORE:
+                        shouldReloadWebView = true
                         await addURLToIgnoreList(url)
-                        const html = await getHTML(true, shouldShowIgnoredStored)
-                        if (html && WEBVIEW_PANNEL) {
-                            WEBVIEW_PANNEL.webview.html = html
-                        }
+                        break
 
-                        await sendURLs(true, shouldShowIgnoredStored)
-                        await stopLoading()
-                        await updateTreeviews()
-                        await sendFavicons()
-                    })()
-                    break
-
-                case EActionTypes.RESTORE:
-                    ;(async () => {
+                    case EActionTypes.RESTORE:
+                        shouldReloadWebView = true
                         await restoreURLFromIgnoreList(url)
-                        const html = await getHTML(true, shouldShowIgnoredStored)
-                        if (html && WEBVIEW_PANNEL) {
-                            WEBVIEW_PANNEL.webview.html = html
-                        }
+                        break
 
-                        await sendURLs(true, shouldShowIgnoredStored)
-                        await stopLoading()
-                        await updateTreeviews()
-                        await sendFavicons()
-                    })()
-                    break
-
-                case EActionTypes.SAVE_URL_DESCRIPTION:
-                    ;(async () => {
+                    case EActionTypes.SAVE_URL_DESCRIPTION:
+                        shouldReloadWebView = true
                         await saveURLDescription(url)
-                        const html = await getHTML(true, shouldShowIgnoredStored)
-                        if (html && WEBVIEW_PANNEL) {
-                            WEBVIEW_PANNEL.webview.html = html
-                        }
+                        break
 
-                        await sendURLs(true, shouldShowIgnoredStored)
-                        await stopLoading()
-                        await sendFavicons()
-                    })()
-                    break
+                    case EActionTypes.TOGGLE_SHOW_IGNORED:
+                        shouldReloadWebView = true
+                        currentContext.workspaceState.update(
+                            'shouldShowIgnored',
+                            isShowingIgnored
+                        )
+                        break
 
-                case EActionTypes.TOGGLE_SHOW_IGNORED:
-                    currentContext.workspaceState.update(
-                        'shouldShowIgnored',
-                        !shouldShowIgnoredStored
+                    default:
+                        break
+                }
+
+                if (shouldReloadWebView) {
+                    await reloadWebView(
+                        isShowingIgnored,
+                        currentPage,
+                        searchText
                     )
-                    ;(async () => {
-                        const html = await getHTML(true, !shouldShowIgnoredStored)
-
-                        if (html && WEBVIEW_PANNEL) {
-                            WEBVIEW_PANNEL.webview.html = html
-                        }
-
-                        await sendURLs(true, !shouldShowIgnoredStored)
-                        await stopLoading()
-                        await updateTreeviews()
-                        await sendFavicons()
-                    })()
-                    break
-
-                default:
-                    break
+                }
             }
-        })
+        )
     }
 
-    const viewHtml = await getHTML(true, shouldShowIgnored)
-
-    if (!viewHtml) {
-        logger.log({ message: `No HTML string found` })
-        return
-    }
-
-    WEBVIEW_PANNEL.webview.html = viewHtml
-
-    await startLoading()
-    await sendURLs(true, shouldShowIgnored)
-    await stopLoading()
-    await sendFavicons()
+    await reloadWebView(shouldShowIgnored, 1, '')
 }
