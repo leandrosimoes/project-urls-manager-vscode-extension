@@ -12,6 +12,8 @@ export enum EActionTypes {
     TOGGLE_SHOW_IGNORED = 'TOGGLE_SHOW_IGNORED',
     STAR = 'STAR',
     UNSTAR = 'UNSTAR',
+    CHANGE_PAGE = 'CHANGE_PAGE',
+    SEARCH = 'SEARCH',
 }
 
 export default EActionTypes
