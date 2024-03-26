@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 - You can see more about what's going on [here](https://github.com/leandrosimoes/project-urls-manager-vscode-extension/issues), even open a new issue with your sugestions/errors.
 
+## [1.3.1]
+- Small fixes and improvements
+
 ## [1.3.0]
 - Now the URLs browser has pagination that shows only 6 URLs per page. You can change the page by clicking on the pagination buttons at the bottom of the page.
 
